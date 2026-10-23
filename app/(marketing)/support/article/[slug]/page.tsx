@@ -128,10 +128,12 @@ export default async function SupportArticlePage({ params }: SupportArticlePageP
             </h1>
 
             <div className="text-steel-400 flex flex-wrap items-center gap-4 font-mono text-[11px] tracking-[0.14em] uppercase">
-              <span className="inline-flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" aria-hidden />
-                {article.publishedAt}
-              </span>
+              {article.publishedAt ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5" aria-hidden />
+                  {article.publishedAt}
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" aria-hidden />
                 {article.readingTimeMinutes} min read
@@ -176,7 +178,7 @@ export default async function SupportArticlePage({ params }: SupportArticlePageP
                 </div>
               ) : (
                 <p className="text-steel-400 font-mono text-sm">
-                  [MDX content not found for slug: {slug}]
+                  This article has not been published yet.
                 </p>
               )}
 

@@ -25,7 +25,7 @@ For each page:
 4. **Featured products** — `feature-grid` 3-up. Top three products. Cyan price tag (BDT primary, USD parenthetical), mini spec chips (e.g., `IP65`, `LiDAR`, `4G/LTE`). CTA: "View all products".
 5. **Solutions by industry** — `feature-grid` 4-up. Cards for *Smart Factory*, *Smart Agriculture*, *Smart City*, *Education*. Each card has a blueprint-style line illustration.
 6. **Why ARIOT** — `metric-band`. Four mono digits with cyan accents: years in operation, deployments, regional offices/distributors, support response SLA. All `[BRACKETED]` until real numbers exist.
-7. **Innovation lab teaser** — `media-showcase`. Latest 2 blog posts in a 2-up grid with large thumbnails and reading-time chips.
+7. **Innovation lab teaser** — `media-showcase`. **L3**: latest 3 published `BlogPost` rows via `safeGetLatestPublishedPosts(3)` (title, category, excerpt, published date, cover image, link). Static `BLOG_TEASERS` fallback only when zero DB posts; section collapses honestly when both empty.
 8. **Testimonial / case study** — `testimonial`. One marquee quote, photo, role, company. Side: link to full case study.
 9. **Quote / contact band** — `cta-band`. Two CTAs: "Request a quote" (primary), "Talk to sales" (secondary). Subtext: regional office locator hint.
 10. **Footer** — global footer (see §13).
@@ -115,8 +115,9 @@ For each page:
 2. **Industry grid** — `feature-grid` 4-up: Smart Factory, Smart Agriculture, Smart City, Energy & Utilities, Education, Custom (6 cards in a 3×2). Each card: line illustration, name, 1-line outcome, "Learn more".
 3. **How an ARIOT engagement works** — `timeline`. 5 steps: Discover → Design → Pilot → Deploy → Support.
 4. **Featured case study** — `media-showcase` with metrics overlay.
-5. **CTA band** — "Discuss your project" → quote.
-6. **Footer**.
+5. **Latest IoT updates** — **L3**: latest published `BlogPost` rows categorized `iot-in-bangladesh` via `safeGetPublishedPostsByCategory('iot-in-bangladesh', 3)`. Omitted when empty. Static solutions core otherwise unchanged.
+6. **CTA band** — "Discuss your project" → quote.
+7. **Footer**.
 
 **Primary CTA**: "Discuss your project" / "Request a quote".
 
@@ -150,6 +151,38 @@ For each page:
 **Mobile notes**: standard stacking; tech-stack chips wrap.
 
 **SEO intent**: `[industry] [outcome]` long-tail.
+
+---
+
+## 4b. Robotics / R&D — `/robotics`
+
+**Intent**: demonstrate ARIOT is genuinely engineering autonomous robotics — honest prototype/R&D positioning that builds technical credibility.
+
+**Sections** (launch scope, L3):
+
+1. **Hero** — robotics brand statement with honest "prototype / R&D-stage" language.
+2. **Core static content** — capability narrative, development areas (CleanBot, navigation, LiDAR/SLAM, field validation).
+3. **Updates** — **L3**: latest published `BlogPost` rows categorized `robotics-rd` via `safeGetPublishedPostsByCategory('robotics-rd', 3)`. Omitted entirely when no matching posts (professional empty state — no stub cards).
+
+**Primary CTA**: Request a quote / contact.
+
+**SEO intent**: robotics + R&D queries (`[robotics company bangladesh]`, `[autonomous floor cleaning robot]`).
+
+---
+
+## 4c. Research — `/research`
+
+**Intent**: position ARIOT as an R&D-driven organization with credible engineering output.
+
+**Sections** (launch scope, L3):
+
+1. **Hero** — research narrative.
+2. **Core static content** — research areas, focus areas, honest R&D-stage disclosure.
+3. **Recent engineering notes** — **L3**: latest published `BlogPost` rows categorized `engineering-notes` via `safeGetPublishedPostsByCategory('engineering-notes', 3)`. Omitted when empty.
+
+**Primary CTA**: Request a quote / contact.
+
+**SEO intent**: research + engineering queries.
 
 ---
 
@@ -205,6 +238,10 @@ For each page:
 ## 6. Blog / Innovation Lab — `/blog`
 
 **Intent**: prospects and the engineering community see ARIOT as a thought leader, not just a vendor.
+
+**Implementation note (L3)**: `/blog` and `/blog/:slug` now read from **published `BlogPost` rows** in the database (`server/public/blog.ts`). Drafts, archived, and category-unpublished posts are excluded. Metadata and `BlogPosting` JSON-LD derive from the real post. Caching: indefinite ISR (`revalidate = false`) with on-demand `revalidatePath` on admin mutations.
+
+**Sections**:
 
 **Sections**:
 

@@ -1,6 +1,7 @@
 import { PrismaClient } from '@/lib/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { env, getDatabaseUrl } from '@/server/env';
+import { utcPoolConfig } from '@/server/db-timezone';
 
 /**
  * Prisma client singleton — Phase 2 database access point.
@@ -22,6 +23,11 @@ import { env, getDatabaseUrl } from '@/server/env';
  * Phase 1 deploy boots cleanly without a database. If `DATABASE_URL` is
  * absent when database-backed server code imports this module, the typed
  * env helper fails with a clear, actionable configuration error.
+ *
+ * Every session opened by this pool runs in UTC (`utcPoolConfig`, D-070). The
+ * time zone is pinned via a libpq startup option rather than `process.env.TZ`
+ * or a per-query `SET TIME ZONE`, so it applies before the session's first
+ * query and cannot drift between callers. See `server/db-timezone.ts`.
  */
 
 const globalForPrisma = globalThis as unknown as {
@@ -31,7 +37,7 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter: new PrismaPg(getDatabaseUrl()),
+    adapter: new PrismaPg(utcPoolConfig(getDatabaseUrl())),
   });
 
 if (env.NODE_ENV !== 'production') {

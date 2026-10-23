@@ -30,6 +30,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import pg from 'pg';
 
+import { utcPoolConfig } from '@/server/db-timezone';
 import type { AuthorizationContext } from '@/server/auth/permissions';
 import { AuthorizationError } from '@/server/auth/errors';
 import type { VariantMutationResult } from '@/server/admin/products/product-variant-mutation-helpers';
@@ -55,11 +56,11 @@ const testUrl = baseUrl.replace(/\/ariot(\?|$)/, `/${TEST_DB_NAME}$1`);
 
 assert.ok(testUrl.includes('localhost') || testUrl.includes('127.0.0.1'), 'Test URL must be local');
 
-// PrismaPg reads timestamptz as wall-clock UTC (ignores the session offset),
-// while the raw pg driver honors it. Force the session timezone to UTC so both
-// agree — otherwise a +06:00 server session skews Product.updatedAt by 6h and
-// breaks the concurrency token. See docs/08_KNOWN_ISSUES.md (variants note).
-const utcUrl = testUrl + (testUrl.includes('?') ? '&' : '?') + 'options=-c%20timezone%3DUTC';
+// PrismaPg reads timestamps as wall-clock UTC (ignoring the session offset)
+// while the raw pg driver honors the session — so a +06:00 session skews
+// Product.updatedAt by 6h and breaks the concurrency token (I-029). The UTC
+// session invariant now comes from the one central policy rather than an
+// ad-hoc connection-string edit here. See `server/db-timezone.ts` (D-070).
 
 const adminUrl = baseUrl.replace(/\/ariot(\?|$)/, '/postgres$1');
 let pool: InstanceType<typeof Pool>;
@@ -293,15 +294,15 @@ const white12v = {
 
 before(async () => {
   await createDb();
-  pool = new Pool({ connectionString: utcUrl });
+  pool = new Pool(utcPoolConfig(testUrl));
   await seedSchema();
   await seedData();
 
   // Bind the Prisma singleton to the TEST database before the executor chain
-  // is loaded (server/db.ts reads DATABASE_URL at module evaluation). The
-  // UTC session option keeps PrismaPg and the raw pool reading the same
-  // instants for Product.updatedAt.
-  process.env.DATABASE_URL = utcUrl;
+  // is loaded (server/db.ts reads DATABASE_URL at module evaluation). Prisma
+  // pins its own UTC session through `utcPoolConfig`, so the plain URL is
+  // enough here and both drivers read the same instants for Product.updatedAt.
+  process.env.DATABASE_URL = testUrl;
   service = await loadExecutors();
 });
 
@@ -532,7 +533,7 @@ describe('Real variant services against disposable PostgreSQL', () => {
 
   // ── Update service ─────────────────────────────────────────────────────────
 
-  it('19. update: row + audit + token bumped, price/stock changed', async () => {
+  it('19. update: row + audit + token bumped, price changed (stock is inventory-owned)', async () => {
     const created = await service.create(writerCtx, black12v);
     if (!created.ok || !created.variantId) return assert.fail('create failed');
     const auditBefore = await countAudit('PRODUCT_VARIANT_UPDATED');
@@ -553,7 +554,9 @@ describe('Real variant services against disposable PostgreSQL', () => {
 
     const variants = await listVariants('prod1');
     assert.strictEqual(variants[0].name, 'Black, 12V (v2)');
-    assert.strictEqual(variants[0].stock, 9);
+    // Stock is no longer mutable via the variant editor (D-073): variant starts
+    // at 0 and the update ignores any stock value passed in.
+    assert.strictEqual(variants[0].stock, 0);
     assert.strictEqual(variants[0].priceMinor, '27000');
     assert.strictEqual(await getProductToken('prod1'), result.updatedAt);
     assert.strictEqual(await countAudit('PRODUCT_VARIANT_UPDATED'), auditBefore + 1);
@@ -628,7 +631,7 @@ describe('Real variant services against disposable PostgreSQL', () => {
     if (!result.ok) assert.strictEqual(result.type, 'validation');
   });
 
-  it('24. update stock only leaves price/currency/barcode/options untouched', async () => {
+  it('24. update leaves stock untouched (stock is inventory-owned); price/currency/barcode/options unchanged', async () => {
     const created = await service.create(writerCtx, black12v);
     if (!created.ok || !created.variantId) return assert.fail('create failed');
 
@@ -641,7 +644,8 @@ describe('Real variant services against disposable PostgreSQL', () => {
     assert.strictEqual(result.ok, true);
 
     const variants = await listVariants('prod1');
-    assert.strictEqual(variants[0].stock, 42);
+    // Stock is ignored by the variant update (D-073); variant still starts at 0.
+    assert.strictEqual(variants[0].stock, 0);
     assert.strictEqual(variants[0].priceMinor, '25000');
     assert.strictEqual(variants[0].currency, 'BDT');
     assert.strictEqual(variants[0].barcode, '0123456789012');
@@ -774,7 +778,7 @@ describe('Real variant services against disposable PostgreSQL', () => {
       productId: 'prod1',
       variantId: created.variantId,
       expectedUpdatedAt: created.updatedAt,
-      data: { ...black12v.data, stock: 11 },
+      data: { ...black12v.data, name: 'Black, 12V (renamed)' },
     });
 
     const products = await pool.query(`SELECT id, name, sku FROM "Product" ORDER BY id`);

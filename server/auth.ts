@@ -3,6 +3,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { headers } from 'next/headers';
 import { prisma } from '@/server/db';
 import { env } from '@/server/env';
+import { isGoogleProviderEnabled } from '@/server/auth/google-provider';
 
 /**
  * Base Better Auth configuration — Step 2.2.2 (decision D-035, supersedes D-034),
@@ -15,11 +16,29 @@ import { env } from '@/server/env';
  *     (docs/07_DECISIONS.md D-035, docs/08_KNOWN_ISSUES.md — I-017 closed).
  *   - Reads BETTER_AUTH_SECRET / BETTER_AUTH_URL through typed `server/env.ts`.
  *
- * Origin/trust posture (Step 2.2.3, TASK 4):
+ * Origin/trust posture (Step 2.2.3, TASK 4; admin-subdomain split, D-082/D2):
  *   - `trustHost` is intentionally REMOVED. We use an explicit `baseURL`
  *     (BETTER_AUTH_URL) plus an explicit `trustedOrigins` list instead of
  *     trusting arbitrary forwarded-host headers. A `http://localhost:3000`
  *     dev fallback is applied only outside production.
+ *   - Production (D2): BETTER_AUTH_URL = `https://admin.ariottech.com` and
+ *     NEXT_PUBLIC_SITE_URL = `https://ariottech.com`, so the effective trust
+ *     list is exactly those two origins (exact strings — no wildcards). The
+ *     admin origin is ALSO auto-derived from baseURL by Better Auth
+ *     (`getTrustedOrigins`), so sign-in POSTs from the admin host pass the
+ *     CSRF/origin check while the apex origin stays trusted for any
+ *     same-site auth calls. In production, non-HTTPS and loopback origins
+ *     (e.g. the `http://localhost:3000` client-schema default) are excluded
+ *     from the trust list — a production process must never widen CSRF
+ *     trust to localhost.
+ *   - Cookie posture (D2): no `cookieDomain` is configured, so all auth
+ *     cookies are host-only on the admin subdomain (never shared across
+ *     `.ariottech.com`); `Secure`/`__Secure-` naming is derived by Better
+ *     Auth from the https baseURL.
+ *   - OAuth callback (D2): Better Auth builds the Google redirect URI from
+ *     the baseURL (`${BETTER_AUTH_URL}/api/auth/callback/google`), which is
+ *     exactly the URI registered on the Google OAuth client
+ *     (`https://admin.ariottech.com/api/auth/callback/google`).
  *
  * Google provider (Step 2.2.3, TASK 3):
  *   - Enabled ONLY when both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set.
@@ -51,7 +70,16 @@ function resolveTrustedOrigins(): string[] {
   for (const url of [env.BETTER_AUTH_URL, env.NEXT_PUBLIC_SITE_URL]) {
     if (!url) continue;
     try {
-      origins.add(new URL(url).origin);
+      const parsed = new URL(url);
+      // Production trusts only real HTTPS origins. `NEXT_PUBLIC_SITE_URL`
+      // defaults to `http://localhost:3000` when unset, and a production
+      // process must not add that (or any loopback) origin to its CSRF
+      // trust list (D-082/D2).
+      if (env.NODE_ENV === 'production') {
+        const isLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname);
+        if (parsed.protocol !== 'https:' || isLoopback) continue;
+      }
+      origins.add(parsed.origin);
     } catch {
       // Invalid URL is validated elsewhere; ignore here to avoid crashing boot.
     }
@@ -59,7 +87,7 @@ function resolveTrustedOrigins(): string[] {
   return [...origins];
 }
 
-const googleEnabled = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+const googleEnabled = isGoogleProviderEnabled(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET);
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {

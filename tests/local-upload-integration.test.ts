@@ -28,6 +28,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:f
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 import pg from 'pg';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 import { localUploadFromForm } from '../server/storage/local-upload.ts';
 import { statPublicKey } from '../server/storage/local-storage-fs.ts';
 import { parsePublicMediaKey } from '../server/storage/upload-keys.ts';
@@ -172,7 +173,7 @@ async function importPrisma() {
   const { PrismaClient } = await import('../lib/generated/prisma/client.ts');
   const { PrismaPg } = await import('@prisma/adapter-pg');
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString: testUrl }),
+    adapter: new PrismaPg(utcPoolConfig(testUrl)),
   });
 }
 
@@ -180,7 +181,7 @@ async function importPrisma() {
 
 before(async () => {
   await createDb();
-  pool = new Pool({ connectionString: testUrl });
+  pool = new Pool(utcPoolConfig(testUrl));
   await seedSchema();
   persistPrisma = await importPrisma();
   tempRoot = mkdtempSync(join(tmpdir(), 'ariot-local-integration-'));

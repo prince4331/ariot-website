@@ -20,10 +20,14 @@ Conventions:
 | `/products/:slug` | Product detail page (B2C and B2B SKUs share the template, with conditional sections) |
 | `/solutions` | Solutions hub — vertical-led entry points |
 | `/solutions/:slug` | Solution detail (e.g., `smart-warehouse`, `smart-agriculture`, `energy-monitoring`) |
+| `/robotics` | Robotics / R&D story — static core + latest `robotics-rd` posts (L3) |
+| `/research` | Research page — static core + recent `engineering-notes` posts (L3) |
+| `/workspace` | Workspace / platform landing (static) |
+| `/components` | Components index (static) |
 | `/about` | Company story, mission, leadership, manufacturing, certifications |
 | `/about/team` | Team page (subpage of about) |
 | `/about/manufacturing` | Manufacturing & quality page |
-| `/contact` | Contact + office locator |
+| `/contact` | Contact + office locator (real submission via Resend — L3 verified) |
 | `/quote` | B2B quote request form (also linkable from product detail) |
 | `/legal/privacy` | Privacy policy |
 | `/legal/terms` | Terms of service |
@@ -91,10 +95,10 @@ Already enumerated above; this section documents the *intent* of each:
 
 | Path | Purpose |
 |---|---|
-| `/blog` | Blog landing — featured post, latest posts, category strip |
-| `/blog/category/:slug` | Posts by category (e.g., `robotics-rd`, `iot-in-bd`, `smart-industry`, `build-logs`, `tutorials`) |
-| `/blog/tag/:slug` | Posts by tag |
-| `/blog/:slug` | Blog post detail with TOC, related posts, share, newsletter CTA |
+| `/blog` | Blog landing — **LIVE (L3)**: published `BlogPost` rows from DB, newest first; honest empty state |
+| `/blog/category/:slug` | Posts by category (e.g., `robotics-rd`, `iot-in-bd`, `smart-industry`, `build-logs`, `tutorials`) `[future]` |
+| `/blog/tag/:slug` | Posts by tag `[future]` |
+| `/blog/:slug` | Blog post detail — **LIVE (L3)**: canonical slug, Markdown body, `BlogPosting` JSON-LD, `notFound()` for missing |
 | `/blog/authors/:slug` | Author profile |
 | `/innovation-lab` | Branded long-form / experiment showcase (curated subset of blog) |
 
@@ -120,10 +124,10 @@ Auth + RBAC required. See `docs/ADMIN_DASHBOARD_PLAN.md` for permissions and UX.
 | `/admin/quotes/:id` | Quote detail (assign, respond, convert to order) |
 | `/admin/tickets` | Support tickets list |
 | `/admin/tickets/:id` | Ticket thread + internal notes |
-| `/admin/blog` | Blog posts list |
-| `/admin/blog/new` | Create post |
-| `/admin/blog/:id` | Edit post |
-| `/admin/blog/categories` | Blog categories |
+| `/admin/blog` | Blog posts list — **LIVE (L3)**: cursor-paginated, `blog.read` |
+| `/admin/blog/new` | Create post — **LIVE (L3)**: strict Zod, slug dedupe, `blog.write` |
+| `/admin/blog/:id` | Edit post — **LIVE (L3)**: publish/unpublish, optimistic concurrency, audit |
+| `/admin/blog/categories` | Blog categories `[future]` |
 | `/admin/users` | Admin user management |
 | `/admin/roles` | Roles & permissions |
 | `/admin/audit-log` | Audit log viewer |
@@ -136,9 +140,10 @@ Auth + RBAC required. See `docs/ADMIN_DASHBOARD_PLAN.md` for permissions and UX.
 
 | Path | Purpose |
 |---|---|
-| `/api/contact` | Contact form submission |
+| `/api/contact` | Contact form submission — **LIVE (L3)**: Zod-validated, rate-limited, Resend delivery |
 | `/api/quote` | Quote request submission |
 | `/api/newsletter` | Newsletter subscribe |
+| `/api/admin/blog` | **LIVE (L3)** — `POST` create BlogPost (`blog.write`); `POST /api/admin/blog/:id` update/publish/unpublish |
 | `/api/cart` | Cart mutations (mostly via server actions; route handler reserved for non-RSC clients) |
 | `/api/checkout` | Initiate checkout / payment intent |
 | `/api/payments/bkash/webhook` | bKash webhook |

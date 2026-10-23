@@ -23,6 +23,8 @@ import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { BreadcrumbList } from '@/components/seo/breadcrumb-list';
 import { defineMetadata } from '@/lib/seo/metadata';
+import { blogCategoryIcon } from '@/components/marketing/blog-category-icon';
+import { safeGetPublishedPostsByCategory } from '@/server/public/blog';
 
 const industries = [
   {
@@ -131,7 +133,12 @@ export const metadata: Metadata = defineMetadata({
   path: '/solutions',
 });
 
-export default function SolutionsPage() {
+export default async function SolutionsPage() {
+  // TASK 9 — Latest IoT updates: published posts in the IoT in Bangladesh
+  // category. The static Solutions core page remains untouched; the section
+  // is omitted when nothing matching is published yet.
+  const iotUpdates = await safeGetPublishedPostsByCategory('iot-in-bangladesh', 3);
+
   return (
     <>
       <BreadcrumbList
@@ -241,6 +248,35 @@ export default function SolutionsPage() {
           </Card>
         </Container>
       </Section>
+
+      {/* Latest IoT updates (DB-backed) */}
+      {iotUpdates.length > 0 && (
+        <Section bg="raised" spacing="default">
+          <Container className="flex flex-col gap-12">
+            <SectionHeader
+              eyebrow="Field telemetry"
+              title="Latest IoT updates"
+              subhead="Deployment notes, sensing work, and connected-device field learnings."
+            />
+            <FeatureGrid columns={3}>
+              {iotUpdates.map((post) => {
+                const Icon = blogCategoryIcon(post.categorySlug);
+                return (
+                  <FeatureCard
+                    key={post.slug}
+                    icon={Icon}
+                    eyebrow={`${post.categoryName} · ${post.readingTimeMinutes} min`}
+                    title={post.title}
+                    description={post.excerpt ?? ''}
+                    href={`/blog/${post.slug}`}
+                    cta="Read update"
+                  />
+                );
+              })}
+            </FeatureGrid>
+          </Container>
+        </Section>
+      )}
 
       <CtaBand
         eyebrow="Project fit"

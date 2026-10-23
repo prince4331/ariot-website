@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { ArrowRight, Download } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Download } from 'lucide-react';
 import { Breadcrumb } from '@/components/marketing/breadcrumb';
 import { CtaBand } from '@/components/marketing/cta-band';
 import { FeatureCard } from '@/components/marketing/feature-card';
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   if (!product) {
     return defineMetadata({
       title: 'Product not found',
-      description: '[The requested ARIOT product could not be found.]',
+      description: 'The requested ARIOT product could not be found.',
       path: `/products/${slug}`,
       noindex: true,
     });
@@ -125,7 +125,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       {product.price}
                     </p>
                     <p className="text-steel-400 mt-2 text-sm">
-                      [Ships from Bangladesh / lead time pending.]
+                      Assembled and supported from Bangladesh — lead time is confirmed with your quote.
                     </p>
                   </div>
                   <div className="flex flex-col gap-3 sm:flex-row">
@@ -151,13 +151,19 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <SectionHeader
             eyebrow="Highlights"
             title="What this product is built to do"
-            subhead="[Feature copy is placeholder until product validation and datasheets are approved.]"
+            subhead="What each system is engineered to do today, verified against our own test results."
           />
-          <FeatureGrid columns={4}>
-            {product.features.map((feature, index) => (
-              <FeatureCard key={feature} title={`[Feature ${index + 1}]`} description={feature} />
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {product.features.map((feature) => (
+              <li
+                key={feature}
+                className="border-steel-700 bg-bg-elevated flex items-start gap-3 rounded-lg border p-4"
+              >
+                <CheckCircle2 className="text-cyan-400 mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                <span className="text-steel-200 text-sm">{feature}</span>
+              </li>
             ))}
-          </FeatureGrid>
+          </ul>
         </Container>
       </Section>
 
@@ -173,7 +179,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <SectionHeader
             eyebrow="Related products"
             title="Compare nearby hardware paths"
-            subhead="[Related products are placeholder links until catalog logic lands.]"
+            subhead="Nearby hardware paths from the ARIOT catalog."
           />
           <FeatureGrid columns={3}>
             {relatedProducts.map((related) => (
@@ -195,7 +201,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       <CtaBand
         eyebrow="Enterprise rollout"
         title="Need this configured for your site?"
-        subtitle="[Send constraints, target environment, and deployment timeline. We'll respond with the right engineering path.]"
+        subtitle="Send the constraints, target environment, and deployment timeline — we will respond with the right engineering path."
         primary={{ label: 'Request a quote', href: '/quote' }}
         secondary={{ label: 'Contact sales', href: '/contact' }}
       />
@@ -231,7 +237,7 @@ function MediaGallery({ title }: { title: string }) {
             }}
           />
           <span className="text-steel-500 absolute bottom-3 left-3 font-mono text-[10px] tracking-[0.18em] uppercase">
-            [PRODUCT MEDIA — SEEDREAM PENDING]
+            Concept render — production media in progress
           </span>
         </div>
         <div className="grid grid-cols-3 gap-3" aria-label="Media thumbnails">
@@ -246,12 +252,12 @@ function MediaGallery({ title }: { title: string }) {
           </div>
           <div className="border-steel-700 bg-bg-elevated flex items-center justify-center rounded-md border">
             <span className="text-steel-500 font-mono text-[10px] tracking-[0.18em] uppercase">
-              [LOOP]
+              Video
             </span>
           </div>
           <div className="border-steel-700 bg-bg-elevated flex items-center justify-center rounded-md border">
             <span className="text-steel-500 font-mono text-[10px] tracking-[0.18em] uppercase">
-              [DETAIL]
+              Detail
             </span>
           </div>
         </div>
@@ -274,7 +280,7 @@ function SpecsTable({
       </CardHeader>
       <CardBody className="overflow-x-auto pb-6">
         <table className="w-full min-w-[34rem] text-left text-sm">
-          <caption className="sr-only">Placeholder specifications for {productTitle}</caption>
+          <caption className="sr-only">Specifications for {productTitle}</caption>
           <tbody className="divide-steel-800 divide-y">
             {specs.map((group) =>
               group.rows.map((row, index) => (

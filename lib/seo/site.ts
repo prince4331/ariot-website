@@ -11,7 +11,7 @@ export const siteConfig = {
   name: 'ARIOT',
   fullName: 'ARIOT — Autonomous Robotics and IoT',
   description:
-    '[ARIOT engineers autonomous robotics and intelligent IoT systems for industry, smart cities, education, and prosumers across South Asia.]',
+    'ARIOT engineers autonomous robotics and intelligent IoT systems for industry, smart cities, education, and prosumers across South Asia.',
   url: env.NEXT_PUBLIC_SITE_URL,
   locale: 'en_US',
   defaultLocale: 'en',
@@ -27,12 +27,19 @@ export const siteConfig = {
     'South Asia robotics',
     'ARIOT',
   ],
+  // Social profiles are added once accounts are live; empty values are
+  // filtered out of structured data (see components/seo/organization.tsx).
   social: {
-    twitter: '[@ariot]',
-    linkedin: '[ariot]',
-    github: '[ariot]',
+    twitter: '',
+    linkedin: '',
+    github: '',
   },
   contact: {
+    // Public contact identity placeholder (structured data / footer). It is
+    // bracketed, so `components/seo/organization.tsx` filters it out of
+    // public JSON-LD — no placeholder address is ever published.
+    // NOTE: this is NOT mail routing — operational notifications go to the
+    // owner-approved inbox configured via MAIL_TO (server/mail/routing.ts).
     email: '[hello@ariot.example]',
     phone: '[+880-XX-XXXXXXX]',
     address: {

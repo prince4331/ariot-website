@@ -404,3 +404,148 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================================
+   Article prose — `.prose-ariot`
+   Typography for long-form article bodies (blog MDX + DB-backed Markdown).
+   Uses design tokens only (AGENTS.md §6). Light-theme overrides live in the
+   light-theme scope above via the same variable indirection.
+   ============================================================================ */
+
+.prose-ariot {
+  color: var(--steel-200);
+  font-size: 1rem;
+  line-height: 1.75;
+  max-width: var(--content-prose);
+}
+
+.prose-ariot > * + * {
+  margin-top: var(--space-4);
+}
+
+.prose-ariot h2,
+.prose-ariot h3,
+.prose-ariot h4 {
+  color: var(--steel-50);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  scroll-margin-top: calc(var(--header-h) + 1.5rem);
+}
+
+.prose-ariot h2 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin-top: var(--space-7);
+}
+
+.prose-ariot h3 {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin-top: var(--space-6);
+}
+
+.prose-ariot h4 {
+  font-size: 1.05rem;
+  margin-top: var(--space-5);
+}
+
+.prose-ariot strong {
+  color: var(--steel-100);
+  font-weight: 600;
+}
+
+.prose-ariot a {
+  color: var(--cyan-400);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color var(--dur-2) var(--ease-out-quart);
+}
+
+.prose-ariot a:hover {
+  color: var(--cyan-300);
+}
+
+.prose-ariot ul,
+.prose-ariot ol {
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.prose-ariot ul {
+  list-style: disc;
+}
+
+.prose-ariot ol {
+  list-style: decimal;
+}
+
+.prose-ariot li::marker {
+  color: var(--cyan-400);
+}
+
+.prose-ariot blockquote {
+  border-left: 2px solid var(--cyan-400);
+  padding-left: var(--space-4);
+  color: var(--steel-300);
+  font-style: italic;
+}
+
+.prose-ariot code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--bg-raised);
+  border: 1px solid var(--steel-800);
+  border-radius: var(--radius-sm);
+  padding: 0.1em 0.4em;
+  color: var(--cyan-300);
+}
+
+.prose-ariot pre {
+  background: var(--bg-raised);
+  border: 1px solid var(--steel-800);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  overflow-x: auto;
+}
+
+.prose-ariot pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--steel-200);
+}
+
+.prose-ariot img {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--steel-800);
+  max-width: 100%;
+  height: auto;
+}
+
+.prose-ariot table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.925rem;
+}
+
+.prose-ariot th,
+.prose-ariot td {
+  border: 1px solid var(--steel-800);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+.prose-ariot th {
+  color: var(--steel-100);
+  background: var(--bg-raised);
+  font-weight: 600;
+}
+
+.prose-ariot hr {
+  border: 0;
+  border-top: 1px solid var(--steel-800);
+  margin: var(--space-6) 0;
+}

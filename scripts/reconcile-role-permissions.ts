@@ -25,6 +25,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import pg from 'pg';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 
 const { Pool } = pg;
 
@@ -37,6 +38,7 @@ const ROLE_PERMISSION_SETS: Record<string, readonly string[]> = {
     'blog.write',
     'categories.read',
     'categories.write',
+    'inventory.read',
     'media.read',
     'media.write',
     'products.read',
@@ -59,6 +61,7 @@ const ROLE_PERMISSION_SETS: Record<string, readonly string[]> = {
     'analytics.sales.read',
     'customer.read',
     'customer.write',
+    'inventory.read',
     'order.read',
     'order.refund',
     'order.transition',
@@ -147,7 +150,9 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const pool = new Pool({ connectionString: databaseUrl });
+  // UTC session per D-070 (server/db-timezone.ts) — the AuditLog rows written
+  // below must share the application's instant scale.
+  const pool = new Pool(utcPoolConfig(databaseUrl));
 
   try {
     // ── Preflight: read current state ──────────────────────────────────────

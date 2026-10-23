@@ -1,0 +1,179 @@
+# =============================================================================
+# ARIOT production stack — Docker Compose
+#
+#   web     Next.js (standalone) — private network only, no published ports
+#   db      PostgreSQL 16 — persistent volume, never published to the host
+#   migrate one-shot `prisma migrate deploy` — runs once per `up`, before web
+#   caddy   HTTPS reverse proxy — the ONLY service with published ports (80/443)
+#
+#   seed    (profile: initial) — explicit one-time initial seed; NEVER runs
+#           automatically. See deploy/README.md.
+#
+# Usage (on the VPS, from the repo root):
+#   cp .env.production.example .env   # then edit real values
+#   docker compose -f compose.production.yml up -d --build
+#
+# NEVER run `docker compose down -v` against this stack in normal operations:
+# `-v` deletes the PostgreSQL volume (all data) and would orphan media.
+# =============================================================================
+
+name: ariot
+
+services:
+  db:
+    image: postgres:16.10-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ariot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-ariot}
+      # Session TZ stays UTC (matches server/db-timezone.ts, D-070 / I-029).
+      TZ: UTC
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    networks:
+      - backend
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+    # Sized for a 4 GB VPS. Postgres handles the small ARIOT workload easily
+    # within 768 MB; the cap protects the host from runaway queries.
+    deploy:
+      resources:
+        limits: { memory: 768M }
+        reservations: { memory: 256M }
+
+  migrate:
+    build:
+      context: .
+      target: migrate
+    image: ariot-migrate:${IMAGE_TAG:-latest}
+    restart: 'no'
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ariot}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ariot}?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+
+  web:
+    build:
+      context: .
+      target: runtime
+      args:
+        # Public compile-time values (inlined into the client bundle).
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://ariottech.com}
+        NEXT_PUBLIC_PLAUSIBLE_DOMAIN: ${NEXT_PUBLIC_PLAUSIBLE_DOMAIN:-}
+    image: ariot-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ariot}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ariot}?schema=public
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set in .env}
+      # Auth base URL = the ADMIN subdomain (D-082/D2). Better Auth derives
+      # the Google OAuth callback from this value:
+      #   https://admin.ariottech.com/api/auth/callback/google
+      # (must stay in sync with deploy/Caddyfile + the registered Google
+      # redirect URI). The public site URL stays the apex.
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-https://admin.ariottech.com}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://ariottech.com}
+      NEXT_PUBLIC_PLAUSIBLE_DOMAIN: ${NEXT_PUBLIC_PLAUSIBLE_DOMAIN:-}
+      MEDIA_STORAGE_PROVIDER: ${MEDIA_STORAGE_PROVIDER:-local}
+      MEDIA_LOCAL_ROOT: /var/lib/ariot/media
+      MEDIA_PUBLIC_BASE_URL: ${MEDIA_PUBLIC_BASE_URL:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      # Transactional mail routing (D2 / I-031). Empty = contact/quote email
+      # fails closed in production (no fake success); see .env.production.example.
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_TO: ${MAIL_TO:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      # Persistent uploaded media — host directory owned by uid 1000 (node).
+      # Never store uploads anywhere else; this survives redeploys/recreation.
+      - ${MEDIA_HOST_ROOT:-/var/lib/ariot/media}:/var/lib/ariot/media
+    networks:
+      - backend
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+    # Memory budget for a 4 GB VPS (db 768M + web 1G + caddy 256M leaves
+    # ~2 GB for the OS, Docker daemon, and build headroom). Add swap before
+    # building images on the VPS — see deploy/README.md.
+    deploy:
+      resources:
+        limits: { memory: 1G }
+        reservations: { memory: 512M }
+
+  caddy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp' # HTTP/3
+    environment:
+      # ACME registration contact for Let's Encrypt (certificate expiry
+      # notices). Override in .env.
+      CADDY_ACME_EMAIL: ${CADDY_ACME_EMAIL:-admin@ariottech.com}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # certificates — persists across container recreation
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - backend
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+    deploy:
+      resources:
+        limits: { memory: 256M }
+        reservations: { memory: 64M }
+
+  # Explicit one-time initial seed. NEVER part of `up` / restart flows.
+  #   docker compose -f compose.production.yml --profile initial run --rm seed
+  seed:
+    profiles: ['initial']
+    build:
+      context: .
+      target: seed
+    image: ariot-seed:${IMAGE_TAG:-latest}
+    restart: 'no'
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ariot}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ariot}?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - backend
+    logging:
+      driver: json-file
+      options: { max-size: '10m', max-file: '3' }
+
+networks:
+  backend: {}
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

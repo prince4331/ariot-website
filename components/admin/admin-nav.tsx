@@ -83,6 +83,8 @@ export const adminNav: ReadonlyArray<AdminNavEntry> = [
     items: [
       // Products enabled — Step 2.4.2
       { label: 'Products', href: '/admin/products', permission: 'products.read' },
+      // Inventory enabled — Step 2.4.6A1 (the only stock-mutation surface)
+      { label: 'Inventory', href: '/admin/inventory', permission: 'inventory.read' },
       // Categories: page not yet built — Step 2.4.7
       {
         label: 'Categories',
@@ -121,13 +123,18 @@ export const adminNav: ReadonlyArray<AdminNavEntry> = [
     ],
   },
 
-  // Content — blog posts and media library (Steps 2.5.x)
+  // Content — blog posts and media library (Steps 2.5.x / L3 launch CMS)
   {
     kind: 'group',
     label: 'Content',
     icon: FileText,
     items: [
-      { label: 'Blog', href: '/admin/blog', soon: true, permission: 'blog.write' },
+      // Blog & Updates enabled — L3 Minimal Marketing CMS
+      {
+        label: 'Blog & Updates',
+        href: '/admin/blog',
+        permission: 'blog.read',
+      },
       { label: 'Media', href: '/admin/media', soon: true, permission: 'media.write' },
     ],
   },

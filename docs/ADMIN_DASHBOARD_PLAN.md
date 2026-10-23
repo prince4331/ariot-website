@@ -114,7 +114,7 @@ Tabbed editor:
 1. **Details** — name, slug (auto from name, editable, with redirect creation on change post-publish), tagline, description (MDX editor with preview), category, sales type, status, brand, base price, currency, stock, stock policy, weight, dimensions, highlights (list), in-the-box (list).
 2. **Media** — image gallery (sortable, primary toggle, alt text per image), video gallery (with poster), 3D model upload (when applicable). Uploads go through the **media storage provider** (`server/storage/`, D-068): the working default is the **local** provider (`MEDIA_STORAGE_PROVIDER=local`, `POST /api/admin/media/uploads/local`, delivery via `/media/[...segments]`); R2 (`MEDIA_STORAGE_PROVIDER=r2`) uses presigned URLs. The client resolves the provider via `GET /api/admin/media/upload/mode`. Implemented in Step 2.4.4 (✅ 2026-08-18).
 3. **Variants** — option groups (Color, Voltage, …) as **free-form `optionValues` key/value pairs**; variant matrix; per-variant SKU, price, stock, barcode. Implemented in Step 2.4.5 (✅ Closed 2026-08-18): `/admin/products/[id]/variants` + `POST /api/admin/products/variants` (create/update/archive dispatch); option-values normalized server-side (trim; ≤20 keys; key ≤40; value ≤100; order-independent combination uniqueness via `optionCombinationKey`); SKU normalized **uppercase** with global uniqueness (incl. archived variants + active products); concurrency via `Product.updatedAt` (409 on stale); archive = soft-delete (`deletedAt`, idempotent, SKU stays reserved); per-mutation AuditLog (`PRODUCT_VARIANT_CREATED`/`_UPDATED`/`_ARCHIVED`, entityType `Product`); optimistic UI with conflict banner; read-only view without `products.write`. Final production-service verification (2026-08-18): real executors tested through the shared authorization boundary on disposable PostgreSQL (376/376 pass). **Default-variant invariant DEFERRED**: there is no DB constraint on `isDefault`; zero or multiple defaults are possible today — the service only clears other defaults when a variant is set to `true`, and the UI exposes the toggle. An exactly-one-default invariant (per product) is intentionally NOT invented here; define it in the roadmap before Step 2.4.6. See decision D-069.
-4. **Inventory** — current stock, reorder point, reorder quantity, stock movements log (read-only).
+ 4. **Inventory** — current stock, reorder point, reorder quantity, stock movements log (read-only). **Implemented (Step 2.4.6A1 + 2.4.6A3, decisions D-073/D-074/D-075/D-077)**: the Inventory tab (`/admin/inventory`) is the **only** stock-mutation surface; variant `stock` is read-only; permissions `inventory.read` (SUPER_ADMIN + CONTENT_ADMIN + SALES_ADMIN) and `inventory.adjust` (SUPER_ADMIN only via `*`); manual adjustments require `reason` + `note`, use `deltaQty`, and lock the authoritative row with `SELECT ... FOR UPDATE` inside one transaction that also writes the `StockMovement` ledger row (D-077) and the `AuditLog` row; the `StockMovement` ledger is append-only (DB trigger rejects UPDATE/DELETE — D-075); physical stock is never negative — D-071/D-076. The read-only **History dialog** (DataTable) shows movements filtered by product/variant (any `inventory.read` role). The Step 2.4.6A2 catalog page was intentionally skipped per the implementation-scope decision (only manual adjustment was needed).
 5. **SEO** — meta title, meta description, OG image override, canonical override (advanced).
 6. **Related** — related, cross-sell, accessory, alternative selectors.
 7. **Downloads** — datasheet, manual, quickstart, CAD, firmware (with version) — uploaded as `MediaAsset` with `kind`.
@@ -195,23 +195,21 @@ Save as draft / Schedule publish / Publish now.
 
 ### 4.5 Content
 
-#### `/admin/blog`
+> **L3 Launch status (2026-09-01)**: Blog/Updates admin is **LIVE** — single focused editor (no tab suite yet). The tab-based editor, category admin, bulk actions, and advanced SEO tab are `[future]` and intentionally out of launch scope.
 
-- Table: cover, title, category, status (chip), author, scheduledAt / publishedAt, action menu.
-- Filters, bulk actions (publish, schedule, archive).
+#### `/admin/blog` — **LIVE (L3)**
 
-#### `/admin/blog/new` and `/admin/blog/:id`
+- Table: cover, title, category, status (chip), author, publishedAt / updatedAt, action menu (edit).
+- Cursor pagination + `ILIKE` search. `blog.read` RBAC. `<meta name="robots" content="noindex">`.
 
-Tabs:
-1. **Content** — title, slug, excerpt, body (MDX with preview), category, tags, isLab toggle.
-2. **Media** — cover image, OG image override.
-3. **SEO** — meta title, meta description, canonical.
-4. **Schedule** — status, scheduledAt, publishedAt.
-5. **History** — audit log.
+#### `/admin/blog/new` and `/admin/blog/:id` — **LIVE (L3)**
+
+- Fields: title, slug (auto-derived), excerpt, body (Markdown — no MDX execution), category, cover image, status, publishedAt, SEO title/description.
+- Strict Zod contract, unknown fields rejected, slug dedupe, optimistic concurrency (`expectedUpdatedAt`), server-derived author/actor, safe publication transition, audit on success only.
 
 #### `/admin/blog/categories`
 
-- Tree edit, slug, description, SEO.
+- Tree edit, slug, description, SEO. `[future]` — categories currently seeded (robotics-rd, iot-in-bangladesh, engineering-notes); no admin UI yet.
 
 #### `/admin/media`
 
@@ -348,7 +346,7 @@ ARIOT Control
 │   ├── Products (/admin/products) ✅ Step 2.4.2
 │   ├── Components (/admin/components) [planned 2.14.2]
 │   ├── Categories (/admin/categories) [planned 2.4.7]
-│   ├── Inventory (/admin/inventory) [planned 2.14.4]
+│   ├── Inventory (/admin/inventory) [Step 2.4.6A1 ✅ — mutation surface; Step 2.4.6A3 ✅ — StockMovement ledger + History dialog]
 │   └── Media (/admin/media) [planned 2.6.1]
 │
 ├── R&D
@@ -372,7 +370,7 @@ ARIOT Control
 ├── Content
 │   ├── Homepage (/admin/content/homepage) [planned 2.11.2]
 │   ├── Pages (/admin/content/pages) [planned 2.16.2]
-│   ├── Blog (/admin/blog) [planned 2.5.1]
+│   ├── Blog (/admin/blog) — **LIVE (L3)**: list/create/edit/publish/unpublish, `blog.read`/`blog.write` RBAC, cursor pagination, Zod validation, slug dedupe, optimistic concurrency, audit logging
 │   ├── News (/admin/content/news) [planned 2.16.1]
 │   ├── Navigation (/admin/content/navigation) [planned 2.16.3]
 │   ├── Footer (part of Navigation) [planned 2.16.3]
@@ -421,6 +419,7 @@ The current nav config must be extended beyond the current 7 groups (Catalog/Sal
 | Components read/write | ✓/✓ | ✓/✓ | ✓/✓ | —/— | —/— | ✓/— | —/— | —/— |
 | Categories write | ✓ | ✓ | ✓ | — | — | — | — | — |
 | Inventory adjust | ✓ | — | ✓ | — | — | — | — | — |
+| Inventory read | ✓ | ✓ | ✓ | — | — | ✓ | — | — |
 | R&D read/write | ✓/✓ | ✓/✓ | —/— | ✓/✓ | —/— | —/— | —/— | —/— |
 | Workspace read/write | ✓/✓ | —/— | —/— | —/— | ✓/✓ | —/— | —/— | —/— |
 | Bookings read/manage | ✓/✓ | —/— | —/— | —/— | ✓/✓ | ✓/— | —/— | —/— |
@@ -435,6 +434,8 @@ The current nav config must be extended beyond the current 7 groups (Catalog/Sal
 | Settings | ✓ | — | — | — | — | — | — | — |
 
 **Note**: `catalog_manager`, `rd_editor`, `workspace_manager`, `sales_manager`, `support_agent`, `seo_editor` are planned future roles. Current implemented roles: `SUPER_ADMIN`, `CONTENT_ADMIN`, `SUPPORT_ADMIN`, `SALES_ADMIN`. New roles require a migration and seed update (after C.1 permission wildcard fix).
+
+**Inventory permissions (decision D-074, Step 2.4.6-0)**: planned granular permissions `inventory.read` and `inventory.adjust`. Implemented mapping — `SUPER_ADMIN`: both (via `*`); `CONTENT_ADMIN`: `inventory.read` only; `SALES_ADMIN`: `inventory.read` only; `SUPPORT_ADMIN`: neither. The `catalog_manager`/`sales_manager` rows above are **planned future roles**; once the permission catalog is extended (Step 2.4.6A2) the `inventory.adjust` grant for those future roles will be reconciled to match D-074 (adjust reserved to SUPER_ADMIN + the designated inventory role). See also D-073 (Inventory = only stock-mutation surface; variants become read-only in 2.4.6A1) and D-075/D-077 (`StockMovement` ledger + `SELECT ... FOR UPDATE` adjustment concurrency in 2.4.6A3).
 
 ### 9.3 Planned phases
 

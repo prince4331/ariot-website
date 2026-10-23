@@ -31,6 +31,7 @@ import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import pg from 'pg';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 import {
   CopyObjectCommand,
   DeleteObjectCommand,
@@ -304,7 +305,7 @@ async function importPrisma() {
   const { PrismaClient } = await import('../lib/generated/prisma/client.ts');
   const { PrismaPg } = await import('@prisma/adapter-pg');
   return new PrismaClient({
-    adapter: new PrismaPg({ connectionString: testUrl }),
+    adapter: new PrismaPg(utcPoolConfig(testUrl)),
   });
 }
 
@@ -312,7 +313,7 @@ async function importPrisma() {
 
 before(async () => {
   await createDb();
-  pool = new Pool({ connectionString: testUrl });
+  pool = new Pool(utcPoolConfig(testUrl));
   await seedSchema();
   persistPrisma = await importPrisma();
 });

@@ -3,6 +3,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -140,9 +141,15 @@ export function MobileDrawer({ navItems }: MobileDrawerProps) {
           <Link
             href="/"
             onClick={close}
-            className="font-display text-steel-100 text-lg font-semibold tracking-tight transition-colors hover:text-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:outline-none"
+            className="inline-flex items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
           >
-            ARIOT
+            <Image
+              src="/media/brand/ariot-logo-icon.png"
+              alt="ARIOT"
+              width={28}
+              height={28}
+              className="h-7 w-auto"
+            />
           </Link>
           <button
             type="button"
@@ -199,7 +206,7 @@ export function MobileDrawer({ navItems }: MobileDrawerProps) {
         aria-haspopup="dialog"
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          'inline-flex h-10 w-10 items-center justify-center rounded-md md:hidden',
+          'inline-flex h-10 w-10 items-center justify-center rounded-md lg:hidden',
           'text-steel-100 hover:bg-bg-elevated hover:text-cyan-400',
           'ease-out-quart transition-colors duration-200',
           'focus-visible:ring-offset-bg-base focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:outline-none',

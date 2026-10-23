@@ -46,7 +46,7 @@ export const BUSINESS_AREAS: ReadonlyArray<FeatureCardData> = [
     title: 'Autonomous robotics R&D',
     description:
       'We research and build autonomous robots — starting with an industrial floor-cleaning system currently in prototype and testing stages.',
-    href: '/research',
+    href: '/robotics',
   },
   {
     icon: Users,

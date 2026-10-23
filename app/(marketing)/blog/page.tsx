@@ -1,11 +1,10 @@
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
-import { ArrowRight, BookOpen, Calendar, Clock, FlaskConical, Wifi } from 'lucide-react';
+import { ArrowRight, Calendar, Clock } from 'lucide-react';
 import { FeatureCard } from '@/components/marketing/feature-card';
 import { FeatureGrid } from '@/components/marketing/feature-grid';
 import { HeroShell } from '@/components/marketing/hero-shell';
-import { SectionHeader } from '@/components/marketing/section-header';
 import { Button } from '@/components/ui/button';
 import { Card, CardBody } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
@@ -13,39 +12,22 @@ import { Section } from '@/components/ui/section';
 import { NewsletterForm } from '@/features/forms/newsletter-form';
 import { BreadcrumbList } from '@/components/seo/breadcrumb-list';
 import { defineMetadata } from '@/lib/seo/metadata';
+import { blogCategoryIcon } from '@/components/marketing/blog-category-icon';
+import { formatDate } from '@/lib/utils/format-date';
+import { safeListPublishedPosts } from '@/server/public/blog';
 
-const categories = [
-  'Robotics R&D',
-  'IoT in Bangladesh',
-  'Smart Industry',
-  'Build Logs',
-  'Tutorials',
-  'Engineering Notes',
-] as const;
+/**
+ * /blog — DB-backed blog listing (L3 Minimal Marketing CMS).
+ *
+ * Render strategy (TASK 18): the page is statically prerendered with an
+ * indefinite ISR cache (`revalidate = false`) and refreshed on demand via
+ * `revalidatePath` from the admin blog mutation API routes — newly published
+ * posts appear without a rebuild, and nothing goes stale indefinitely.
+ * Only PUBLISHED, non-deleted posts with a published category are returned
+ * by the query layer; with zero posts the page renders an honest empty state.
+ */
 
-const posts = [
-  {
-    icon: FlaskConical,
-    eyebrow: 'Robotics R&D · 8 min',
-    title: 'What makes a robot reliable outside the lab',
-    description:
-      'A field note on dust, uneven floors, power cycles, and why autonomy work starts with the environment.',
-  },
-  {
-    icon: Wifi,
-    eyebrow: 'IoT in Bangladesh · 6 min',
-    title: 'Designing IoT for unreliable networks',
-    description:
-      'How buffering, local alarms, and recovery states shape a deployment in real regional conditions.',
-  },
-  {
-    icon: BookOpen,
-    eyebrow: 'Tutorial · 10 min',
-    title: 'A practical MQTT checklist for device teams',
-    description:
-      'Topic naming, retry behavior, credentials, and logs — the details that keep telemetry useful.',
-  },
-] as const;
+export const revalidate = false;
 
 export const metadata: Metadata = defineMetadata({
   title: 'Blog — engineering notes',
@@ -54,8 +36,9 @@ export const metadata: Metadata = defineMetadata({
   path: '/blog',
 });
 
-export default function BlogPage() {
-  const featured = posts[0];
+export default async function BlogPage() {
+  const posts = await safeListPublishedPosts({ limit: 50 });
+  const [featured, ...rest] = posts;
 
   return (
     <>
@@ -81,65 +64,100 @@ export default function BlogPage() {
                   Published when there is something real to share.
                 </p>
               </div>
-              <Button asChild size="xl" variant="primary" className="w-fit">
-                <Link href="/blog">
-                  Read featured post
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              {featured && (
+                <Button asChild size="xl" variant="primary" className="w-fit">
+                  <Link href={`/blog/${featured.slug}`}>
+                    Read featured post
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </div>
-            <Card variant="glass">
-              <CardBody className="p-6 md:p-8">
-                <p className="font-mono text-[11px] tracking-[0.18em] text-cyan-400 uppercase">
-                  {featured.eyebrow}
-                </p>
-                <h2 className="text-steel-100 font-display mt-4 text-2xl font-semibold tracking-tight md:text-3xl">
-                  {featured.title}
-                </h2>
-                <p className="text-steel-300 mt-4 text-base">{featured.description}</p>
-                <div className="text-steel-400 mt-6 flex flex-wrap gap-4 font-mono text-[11px] tracking-[0.14em] uppercase">
-                  <span className="inline-flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    To be published
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />8 min read
-                  </span>
-                </div>
-              </CardBody>
-            </Card>
+
+            {featured ? (
+              <Card variant="glass">
+                <CardBody className="p-6 md:p-8">
+                  <p className="font-mono text-[11px] tracking-[0.18em] text-cyan-400 uppercase">
+                    {featured.categoryName} · {featured.readingTimeMinutes} min
+                  </p>
+                  <h2 className="text-steel-100 font-display mt-4 text-2xl font-semibold tracking-tight md:text-3xl">
+                    {featured.title}
+                  </h2>
+                  <p className="text-steel-300 mt-4 text-base">{featured.excerpt}</p>
+                  <div className="text-steel-400 mt-6 flex flex-wrap gap-4 font-mono text-[11px] tracking-[0.14em] uppercase">
+                    {featured.publishedAt && (
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {formatDate(featured.publishedAt)}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="h-3.5 w-3.5" /> {featured.readingTimeMinutes} min read
+                    </span>
+                  </div>
+                  <Button asChild variant="ghost" className="mt-6">
+                    <Link href={`/blog/${featured.slug}`}>
+                      Read the note
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardBody>
+              </Card>
+            ) : (
+              <Card variant="glass">
+                <CardBody className="p-6 md:p-8">
+                  <p className="font-mono text-[11px] tracking-[0.18em] text-cyan-400 uppercase">
+                    Nothing published yet
+                  </p>
+                  <h2 className="text-steel-100 font-display mt-4 text-2xl font-semibold tracking-tight md:text-3xl">
+                    Engineering notes are in progress
+                  </h2>
+                  <p className="text-steel-300 mt-4 text-base">
+                    The first build logs and field notes are being written and reviewed. They will
+                    appear here — and on the homepage, Robotics, and Research sections — as soon as
+                    they are approved for publication.
+                  </p>
+                </CardBody>
+              </Card>
+            )}
           </Container>
         </Section>
       </HeroShell>
 
-      <Section bg="raised" spacing="compact">
-        <Container>
-          <ul className="flex gap-2 overflow-x-auto pb-1" aria-label="Blog categories">
-            {categories.map((category) => (
-              <li key={category}>
-                <span className="border-steel-700 bg-bg-elevated text-steel-200 inline-flex rounded-full border px-4 py-2 font-mono text-[11px] tracking-[0.16em] whitespace-nowrap uppercase">
-                  {category}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </Section>
-
-      <Section bg="base" spacing="default">
-        <Container className="flex flex-col gap-12">
-          <SectionHeader
-            eyebrow="Latest posts"
-            title="Writing that shows the work"
-            subhead="Published when there is genuine engineering insight to share — not on a content-marketing schedule."
-          />
-          <FeatureGrid columns={3}>
-            {posts.slice(1).map((post) => (
-              <FeatureCard key={post.title} {...post} href="/blog" cta="Read" />
-            ))}
-          </FeatureGrid>
-        </Container>
-      </Section>
+      {rest.length > 0 && (
+        <Section bg="raised" spacing="default">
+          <Container className="flex flex-col gap-12">
+            <div className="text-center">
+              <p className="font-mono text-[12px] font-medium tracking-[0.18em] text-cyan-400 uppercase">
+                All notes
+              </p>
+              <h2 className="text-steel-100 font-display mt-4 text-3xl font-semibold tracking-tight md:text-4xl">
+                Everything published so far
+              </h2>
+              <p className="text-steel-300 mx-auto mt-4 max-w-2xl text-base">
+                Published when there is genuine engineering insight to share — not on a
+                content-marketing schedule.
+              </p>
+            </div>
+            <FeatureGrid columns={3}>
+              {rest.map((post) => {
+                const Icon = blogCategoryIcon(post.categorySlug);
+                return (
+                  <FeatureCard
+                    key={post.slug}
+                    icon={Icon}
+                    eyebrow={`${post.categoryName} · ${post.readingTimeMinutes} min`}
+                    title={post.title}
+                    description={post.excerpt ?? ''}
+                    href={`/blog/${post.slug}`}
+                    cta="Read"
+                  />
+                );
+              })}
+            </FeatureGrid>
+          </Container>
+        </Section>
+      )}
 
       <Section bg="raised" spacing="default">
         <Container>

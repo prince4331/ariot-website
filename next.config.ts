@@ -89,6 +89,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 const withMDX = createMDX({});
 
 const nextConfig: NextConfig = {
+  // Self-hosted production deployment (D1): standalone output produces a
+  // minimal server bundle for the Docker runtime image (see Dockerfile).
+  output: 'standalone',
   // Allow .mdx files as pages and importable components
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   poweredByHeader: false,

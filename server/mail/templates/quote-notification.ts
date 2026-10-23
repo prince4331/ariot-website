@@ -1,4 +1,5 @@
 import { sendEmail } from '../client';
+import { resolveContactInbox, resolveMailFrom } from '../routing';
 import { siteConfig } from '@/lib/seo/site';
 import type { QuoteInput } from '@/lib/validators/quote';
 
@@ -166,8 +167,10 @@ export async function sendQuoteNotification(
   data: QuoteInput,
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   return sendEmail({
-    from: `ARIOT Sales <noreply@ariot.example>`,
-    to: siteConfig.contact.email,
+    // Env-driven routing (D2 / I-031) — shared with the contact
+    // notification: MAIL_FROM (Resend-verified sender) + MAIL_TO (inbox).
+    from: resolveMailFrom(),
+    to: resolveContactInbox(),
     replyTo: data.email,
     subject: `[Quote] ${data.company} — ${formatCategory(data.productCategory)}`,
     html: buildQuoteHtml(data),

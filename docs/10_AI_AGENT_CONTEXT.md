@@ -2,10 +2,10 @@
 
 **AI Handoff Context** — Everything a future AI coding agent needs to continue this project without prior conversation history.
 
-**Last Updated**: 2026-08-18
-**Phase**: Phase 2 (Product CMS / Admin)
+**Last Updated**: 2026-10-23
+**Phase**: Phase 2 (Product CMS / Admin) + L3 Launch CMS + **D1 Production Docker Preparation**
 **Planning Status**: ✅ COMPLETE
-**Implementation Status**: 🟢 IN PROGRESS — 10 of 43 steps complete (23%); **Step 2.4.5 (Product Editor Variants Tab) ✅ CLOSED (2026-08-18, final production-service verification)** — the variants tab (free-form option values, uppercase SKU with global uniqueness, combination-uniqueness, concurrency on `Product.updatedAt`, soft-delete archive, audit logging) is implemented and verified against the REAL production executors on disposable PostgreSQL: **376/376 node:test pass** (1 opt-in R2 smoke correctly skips — no R2 creds) across **22 test files**, `tsc`/`eslint`/`next build` (62/62 static pages) green. **I-028 resolved** (details-schema price transform never throws); default-variant invariant deferred (documented); I-029 noted (PrismaPg timestamptz offset — force UTC in test harness). Next: **Step 2.4.6** (Inventory/SEO/Related/Downloads/History tabs).
+**Implementation Status**: 🟢 IN PROGRESS — **D1 Production Docker Preparation ✅ COMPLETED (2026-10-22)** — Docker/Compose production stack for `https://ariottech.com` on an OVH VPS (4 GB): `Dockerfile` (multi-stage: runtime/migrate/seed), `compose.production.yml` (`web`/`db`/`migrate`/`caddy` + explicit `seed` profile), `deploy/Caddyfile` (automatic HTTPS), `deploy/README.md` (canonical runbook), `.env.production.example`. Production seed is now **insert-only** (a rerun can never overwrite admin-edited content — D-079, regression-tested). Verified: **474 tests / 473 pass / 0 fail / 1 opt-in R2 skip** across 30 test files, `tsc`/`eslint`/`next build` green, migrations apply cleanly on an empty DB. **D1 closed 2026-10-23** — final verification session: live cache suite **37/37** (all 8 D-081 publication behaviours, disposable Docker data, no rebuild), production config verified (compose/image/migrate/health/media/env template), `git diff --check` green after CRLF→LF repair, GitHub readiness audited (exclude `z.txt`). **Not deployed yet** (D1/D2 stop before the OVH deploy). **D2 Production Auth ✅ COMPLETED (2026-10-23, D-083)** — admin-subdomain authentication: `BETTER_AUTH_URL=https://admin.ariottech.com` with **runtime-verified** Google callback `https://admin.ariottech.com/api/auth/callback/google` (matches the downloaded OAuth client) and **runtime-verified `403 INVALID_ORIGIN`** for untrusted cookie-bearing origins; exact two-origin trust list (no wildcards; loopback excluded in production); host-only cookies; loop-safe host routing via new `proxy.ts` (Next 16 middleware) + Caddy `handle` blocks; `app/(admin)/layout.tsx` loop-proof. Env-driven contact/quote/newsletter mail routing (`MAIL_FROM`/`MAIL_TO`, production fail-closed, dev placeholders never published). Fixed latent Caddyfile break (bare `{$CADDY_ACME_EMAIL}`). Launch blockers: I-031 (Resend verification of `ariottech.com` + owner-decided `MAIL_FROM`/`MAIL_TO`) + user config (Google OAuth creds in `.env`, real secrets, DNS incl. the `admin` A/CNAME) — see `docs/08_KNOWN_ISSUES.md`. Live Google login **unverified** until a post-deploy HTTPS browser flow. Next: **D3 — GitHub + OVH deployment preparation**.
 
 ---
 
@@ -34,7 +34,7 @@
 - **3D**: React Three Fiber + drei + Three.js — *installed* (`components/three/`)
 - **Validation**: Zod ^4.3.6 at every input boundary
 - **Package Manager**: pnpm 10.33.2
-- **Node**: >=20 (runtime: v24.11.0)
+- **Node**: `>=20` declared in `package.json`, but the toolchain needs **>= 22** for native TS type stripping (dev machine + Docker image: **24.22.0**) — see I-032
 
 ### Project Structure
 ```
@@ -95,7 +95,7 @@ public/               # Static assets
 
 **Source Files**: ~137 TypeScript/TSX files (incl. ~28 generated Prisma client files) + Prisma schema + config
 
-**Build Status**: ✅ All checks pass: `tsc --noEmit`, `eslint --max-warnings 0`, `next build` (62 static pages). Steps 2.2.1–2.2.5 + 2.3.1 complete. **Phase 1 Visual Redesign complete and browser-verified (2026-07-10)** — public site light; drawer portaled to body (WebKit fixed-position containing-block bug confirmed and fixed, verified at 390×844 and 360×800); all public pages de-bracketed; glassmorphism system added; admin console dark and functional (unchanged). **I-019 resolved and fully verified (2026-07-25)**: 4-way Prisma migrate diff clean, disposable migrate dev probe succeeded, primary DB unchanged. **I-025 resolved (2026-07-25)**: All namespace wildcards replaced with explicit permissions via `server/auth/permission-catalog.ts` + reconciliation CLI. CONTENT_ADMIN now satisfies `products.read`. 36 permission tests pass. I-024 resolved. Stable backup at `C:\Users\princ\backups\ariot\ariot_pre_c1_20260725_205020.dump`. **Step 2.4.4 STORAGE-1R uploads + D-068 local provider default (2026-08-18)**: verified totals — **238/239 node:test pass** (1 opt-in R2 smoke skipped), `next build` ✅ (59 routes), no schema change. **Step 2.4.5 variants tab (2026-08-18, FINAL)**: **376/376 node:test pass** (+73 across 22 files incl. 31 real-service PG), `next build` ✅ (62/62 static pages), no schema change.
+**Build Status**: ✅ All checks pass: `tsc --noEmit`, `eslint --max-warnings 0`, `next build` (62 static pages). Steps 2.2.1–2.2.5 + 2.3.1 complete. **Phase 1 Visual Redesign complete and browser-verified (2026-07-10)** — public site light; drawer portaled to body (WebKit fixed-position containing-block bug confirmed and fixed, verified at 390×844 and 360×800); all public pages de-bracketed; glassmorphism system added; admin console dark and functional (unchanged). **I-019 resolved and fully verified (2026-07-25)**: 4-way Prisma migrate diff clean, disposable migrate dev probe succeeded, primary DB unchanged. **I-025 resolved (2026-07-25)**: All namespace wildcards replaced with explicit permissions via `server/auth/permission-catalog.ts` + reconciliation CLI. CONTENT_ADMIN now satisfies `products.read`. 36 permission tests pass. I-024 resolved. Stable backup at `C:\Users\princ\backups\ariot\ariot_pre_c1_20260725_205020.dump`. **Step 2.4.4 STORAGE-1R uploads + D-068 local provider default (2026-08-18)**: verified totals — **238/239 node:test pass** (1 opt-in R2 smoke skipped), `next build` ✅ (59 routes), no schema change. **Step 2.4.5 variants tab (2026-08-18, FINAL)**: **413 tests / 412 pass** (across 24 files incl. 31 real-service PG variant + 36 UTC + 30 UTC-config), `next build` ✅ (62/62 static pages), no schema change.
 
 **Recently Modified Files**:
 - `server/storage/media-storage-provider.ts` — `MediaStorageProvider` interface + provider-name union (new, D-068).
@@ -136,17 +136,17 @@ public/               # Static assets
 
 ## Current Milestone
 
-**Milestone**: Phase 2 — Product CMS / Admin
-**Current Step**: Step 2.4.5 (Product Editor Variants Tab) **✅ Closed (2026-08-18, final production-service verification)** — variants page + dispatch endpoint + free-form option values, uppercase SKU (global unique), combination-uniqueness, `Product.updatedAt` concurrency, soft-delete archive, audit logging, real executors verified on disposable PostgreSQL, I-028 resolved; **376/376 node:test pass** (1 opt-in R2 smoke skipped), build green. ⬜ Next: **Step 2.4.6** — Product editor Inventory/SEO/Related/Downloads/History tabs.
+**Milestone**: Phase 2 — Product CMS / Admin + **L3 Launch CMS**
+**Current Step**: **L3 Minimal Marketing CMS ✅ Completed (2026-09-01)** — Admin Blog CRUD, public DB-backed blog + homepage/robotics/research/IoT updates, seed imports MDX as PUBLISHED, contact verified real. **463 tests / 463 pass** (1 opt-in R2 smoke skip) across **28 test files**; `tsc`/`eslint`/`next build` green (64 routes). Step 2.4.6A3 (StockMovement ledger) also completed 2026-08-29. Per the user's instruction: **do NOT deploy to VPS during L3** — launch scope is frozen; next step is VPS preparation.
 
-**Build Status**: ✅ All pass: `tsc --noEmit`, `eslint --max-warnings 0`, `next build` (59 routes). `prisma validate`, `prisma generate`. I-019 closed. I-025 closed. I-026 closed. 303 tests pass + 1 opt-in smoke skipped (unit + contract + PG integration via `node --experimental-strip-types`).
+**Build Status**: ✅ All pass: `tsc --noEmit`, `eslint --max-warnings 0`, `next build` (64 routes). `prisma validate`, `prisma generate`. 463 tests pass + 1 opt-in smoke skipped.
 
-**Blocking**: None for Step 2.4.6. (R2 live smoke test remains pending on R2 credentials — I-027, R2-only.) Full sign-in → admin flow untested: requires `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` + `pnpm admin:bootstrap --apply` with a real admin email.
+**Blocking**: None for L3. (R2 live smoke test remains pending on R2 credentials — I-027, R2-only.) Full sign-in → admin flow untested: requires `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` + `pnpm admin:bootstrap --apply` with a real admin email.
 ---
 
 ## Current Next Step
 
-**Recommended**: Implement **Step 2.4.6 — Product editor Inventory, SEO, Related, Downloads, History tabs** per the master plan (Step 2.4.5 is ✅ Closed).
+**Recommended**: **VPS preparation** (post-L3) — deploy the launch site with the seeded blog content + admin. Pre-deploy checklist: set `RESEND_API_KEY`, `GOOGLE_CLIENT_ID/SECRET`, run `pnpm admin:bootstrap --apply`, run `prisma db push` + `prisma db seed` on the target, verify `/blog`, `/admin/blog`, contact submission. No deployment in this step per launch scope freeze.
 
 ---
 
@@ -166,7 +166,8 @@ public/               # Static assets
 | 🟢 10 | Product editor Media tab (2.4.4) | ✅ Done (2026-07-26) — hero image/video, gallery add/remove/reorder, existing-media selector, MIME validation, optimistic concurrency, audit logging |
 | 🟢 11 | STORAGE-1R R2 uploads (2.4.4 closure, D-067) | ✅ Done (2026-08-18, part of D-068 closure) — initiate/presigned PUT/complete pipeline in `server/storage/`; R2 retained behind `MEDIA_STORAGE_PROVIDER=r2`, fail-closed without full config |
 | 🟢 12 | Media storage provider abstraction + local provider (2.4.4, D-068) | ✅ Done (2026-08-18) — `local` is the working default (`MEDIA_STORAGE_PROVIDER=local`); local upload route, mode route, health route, public delivery `/media/[...segments]`, provider-agnostic client; 238/239 tests pass (1 opt-in R2 smoke skipped), build green |
-| 🟢 13 | Product editor Variants tab (2.4.5) | ✅ Closed (2026-08-18, final production-service verification) — `/admin/products/[id]/variants` + `POST /api/admin/products/variants` (create/update/archive dispatch); free-form `optionValues` + order-independent combination uniqueness; uppercase SKU global-unique (incl. archived); `Product.updatedAt` concurrency; soft-delete archive; audit logging; optimistic UI; wrapper+executor architecture verified on disposable PG; 376/376 tests pass (1 opt-in R2 smoke skipped), build green |
+| 🟢 13 | Product editor Variants tab (2.4.5) | ✅ Closed (2026-08-18, final production-service verification) — `/admin/products/[id]/variants` + `POST /api/admin/products/variants` (create/update/archive dispatch); free-form `optionValues` + order-independent combination uniqueness; uppercase SKU global-unique (incl. archived); `Product.updatedAt` concurrency; soft-delete archive; audit logging; optimistic UI; wrapper+executor architecture verified on disposable PG; 413 tests / 412 pass (1 opt-in R2 smoke skipped), build green across 24 files |
+| 🟢 14 | **L3 Minimal Marketing CMS (launch)** | ✅ Complete (2026-09-01) — Admin Blog CRUD (`/admin/blog`, `/admin/blog/new`, `/admin/blog/:id`; `POST /api/admin/blog`, `POST /api/admin/blog/:id`); `server/admin/blog/*` services with strict Zod + slug dedupe + optimistic concurrency + audit; public blog from DB (`server/public/blog.ts`); homepage + `/robotics` + `/research` + `/solutions` consume `safe*` wrappers; seed imports MDX as PUBLISHED with file-mtime dates; contact verified real (Resend). 463 tests / 463 pass (1 opt-in R2 smoke skip), build green |
 
 ---
 
@@ -177,7 +178,7 @@ public/               # Static assets
 3. **Email integration wired** — Resend installed (`resend` 6.16.0). `server/mail/client.ts` with lazy client, dev stub fallback. Three HTML email templates (contact notification, quote notification, newsletter welcome) using ARIOT design tokens. API routes `/api/contact`, `/api/quote`, `/api/newsletter` all send emails. `RESEND_API_KEY` env var required for production (optional in dev).
 4. **SEO infrastructure complete** — 9 schema.org components (`components/seo/`); wired into all key pages. Sitemap (`app/sitemap.ts`) with 39 public URLs; robots (`app/robots.ts`) with proper allow/disallow rules. Dynamic OG images (`app/api/og/route.tsx`) via Edge runtime with per-page branding and page-type badges.
 5. **3D model placeholder** — Geometric shapes only; real GLTF model pending AI asset pipeline (step 1.13)
-6. **Tests active** — 304 tests via `node --test` (+ `--experimental-strip-types` for `.ts`): permission evaluator (36), product details validation (30), product save queue (11), authorization orchestration (12), API route security (13), product editor integration (11), denied-write DB (4), media policy/route contracts (14), product media integration (11), upload token (13), upload keys (18), upload completion logic (8), upload complete integration (12), R2 smoke (1, opt-in — skips without creds), media storage config (15), local upload validation (19), local upload integration (10), local media smoke (1, always-on), **product variant schema (36), product variants integration (18), product variants API security (11)**. 303 pass / 1 skipped / 0 fail. Run: `node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test "tests/*.test.ts"`.
+6. **Tests active** — 506 tests via `node --test` across 33 files: 505 pass / 0 fail / 1 opt-in R2 smoke skip (expected). Blog L3 integration (14), product variants (65), inventory (13), upload pipeline (82), media + storage (44), permissions/auth (49), product details/validation (121), D2 admin-subdomain/auth/email (32: proxy 16, auth-config 9, contact-mail 7), misc (75). Run: `node --import ./tests/helpers/register-hooks.mjs --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test "tests/*.test.ts"`.
 7. **Motion used** — `components/layout/command-palette.tsx` uses `motion/react`; no scroll-triggered page animations yet (acceptable for Phase 1).
 8. **remark-gfm not loaded** — Turbopack serialization constraint; GFM pipe tables not supported; MDX files use JSX table syntax
 9. **Analytics wired** — Vercel Analytics (`@vercel/analytics` 2.0.1) + Plausible Analytics (script tag, deferred). `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` env var optional — omit to disable Plausible. Custom event tracking via `lib/analytics.ts` (typed `trackEvent`): forms, product views, CTA clicks.
@@ -236,9 +237,9 @@ public/               # Static assets
 
 ## Recommended Next Command
 
-**Step 2.4.5 is ✅ Closed — implement Step 2.4.6:**
+**Step 2.4.6A3 is ✅ Completed — Inventory foundation (Step 2.4.6) complete:**
 ```
-Implement Step 2.4.6 — Product editor Inventory, SEO, Related, Downloads, History tabs, from the master plan
+Step 2.4.6A3 delivered the immutable StockMovement ledger (model + migration trigger + executor wiring + GET /api/admin/inventory/movements + /admin/inventory History dialog), per D-075/D-077. Per the user's instruction, STOP after A3: do not begin public-website or ecommerce work.
 ```
 
 **Optional (R2-only follow-up, no longer blocks anything):**
@@ -267,4 +268,4 @@ product-details-schema.ts price transform throws instead of ctx.addIssue — fix
 
 ---
 
-**Last Updated**: 2026-08-18
+**Last Updated**: 2026-10-23

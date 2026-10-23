@@ -19,29 +19,29 @@ const legalPages = [
   {
     title: 'Privacy policy',
     description:
-      '[How ARIOT collects, uses, and protects personal data from website visitors and customers.]',
+      'How ARIOT collects, uses, and protects personal data from website visitors and customers.',
     href: '/legal/privacy',
   },
   {
     title: 'Terms of service',
-    description: '[The terms that govern use of the ARIOT website, products, and services.]',
+    description: 'The terms that govern use of the ARIOT website, products, and services.',
     href: '/legal/terms',
   },
   {
     title: 'Cookie policy',
-    description: '[What cookies and tracking technologies ARIOT uses, and how to control them.]',
+    description: 'What cookies and tracking technologies ARIOT uses, and how to control them.',
     href: '/legal/cookies',
   },
   {
     title: 'Warranty policy',
     description:
-      '[Product warranty coverage, claim procedures, and exclusions for ARIOT hardware.]',
+      'Product warranty coverage, claim procedures, and exclusions for ARIOT hardware.',
     href: '/legal/warranty',
   },
   {
     title: 'Shipping & returns',
     description:
-      '[Delivery terms, return windows, and refund procedures for ARIOT product orders.]',
+      'Delivery terms, return windows, and refund procedures for ARIOT product orders.',
     href: '/legal/shipping',
   },
 ] as const;
@@ -59,8 +59,7 @@ export default function LegalIndexPage() {
               Legal policies
             </h1>
             <p className="text-steel-200 mt-5 text-base sm:text-lg">
-              [ARIOT is in the research and development stage. All legal policies are placeholders
-              and will be reviewed by qualified legal counsel before commercial operations begin.]
+              ARIOT is in the research and development stage. The policies below describe how we operate today and how we plan to operate at commercial launch; all will be reviewed by qualified legal counsel before launch.
             </p>
           </div>
 

@@ -16,6 +16,7 @@ import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import pg from 'pg';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 import {
   createAuthorizedProductDetailsUpdater,
   type ExecuteUpdateFn,
@@ -258,7 +259,7 @@ function createAuthorize(grantedPermissions: readonly string[], actorId: string)
 
 before(async () => {
   await createDisposableDb();
-  pool = new Pool({ connectionString: testUrl });
+  pool = new Pool(utcPoolConfig(testUrl));
   await seedSchema();
   await seedTestData();
 });

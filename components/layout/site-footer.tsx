@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
 import { Separator } from '@/components/ui/separator';
@@ -10,7 +11,10 @@ const COMPANY_LINKS = [
   { label: 'Blog', href: '/blog' },
 ] as const;
 
-const RD_LINKS = [{ label: 'Research & development', href: '/research' }] as const;
+const RD_LINKS = [
+  { label: 'Autonomous robotics', href: '/robotics' },
+  { label: 'Research & development', href: '/research' },
+] as const;
 
 const WORKSPACE_LINKS = [{ label: 'Robotics workspace', href: '/workspace' }] as const;
 
@@ -20,7 +24,7 @@ const SOLUTIONS_LINKS = [
   { label: 'Smart Factory', href: '/solutions/smart-factory' },
   { label: 'Smart Agriculture', href: '/solutions/smart-agriculture' },
   { label: 'Smart City', href: '/solutions/smart-city' },
-  { label: 'Energy & Utilities', href: '/solutions/energy' },
+  { label: 'Energy & Utilities', href: '/solutions/energy-utilities' },
   { label: 'Education', href: '/solutions/education' },
 ] as const;
 
@@ -66,9 +70,15 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4">
             <Link
               href="/"
-              className="font-display text-steel-100 text-xl font-semibold tracking-tight"
+              className="inline-flex items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
             >
-              ARIOT
+              <Image
+                src="/media/brand/ariot-logo-full.png"
+                alt="ARIOT"
+                width={46}
+                height={40}
+                className="h-9 w-auto"
+              />
             </Link>
             <p className="text-steel-300 max-w-md text-sm">
               ARIOT Technologies researches autonomous robotics, develops connected IoT products,

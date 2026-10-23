@@ -30,7 +30,7 @@ export const SUPPORT_ARTICLES: ReadonlyArray<SupportArticle> = [
     title: 'Floor-cleaning robot: first setup guide',
     category: 'Getting started',
     relatedProducts: ['Autonomous floor-cleaning robot'],
-    publishedAt: '[DATE PENDING]',
+    publishedAt: '',
     readingTimeMinutes: 5,
     icon: BookOpen,
     excerpt:
@@ -47,7 +47,7 @@ export const SUPPORT_ARTICLES: ReadonlyArray<SupportArticle> = [
     title: 'IoT gateway node: field deployment guide',
     category: 'Setup & install',
     relatedProducts: ['IoT gateway node'],
-    publishedAt: '[DATE PENDING]',
+    publishedAt: '',
     readingTimeMinutes: 7,
     icon: Settings2,
     excerpt:
@@ -64,7 +64,7 @@ export const SUPPORT_ARTICLES: ReadonlyArray<SupportArticle> = [
     title: 'Home safety device: testing the sensors',
     category: 'Troubleshooting',
     relatedProducts: ['IoT home safety device'],
-    publishedAt: '[DATE PENDING]',
+    publishedAt: '',
     readingTimeMinutes: 4,
     icon: Download,
     excerpt:

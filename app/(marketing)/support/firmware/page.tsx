@@ -12,40 +12,32 @@ import { defineMetadata } from '@/lib/seo/metadata';
 
 const FIRMWARE_RELEASES = [
   {
-    product: '[Autonomous floor-cleaning robot]',
-    version: '[v0.x.x — pending]',
+    product: 'Autonomous floor-cleaning robot',
+    version: 'Pre-release',
     status: 'pending',
-    releaseDate: '[RELEASE DATE PENDING]',
-    notes: ['[SLAM tuning improvements]', '[Docking reliability fix]', '[App connectivity update]'],
-    downloadHref: '#',
+    releaseDate: 'To be announced',
+    notes: ['SLAM tuning improvements', 'Docking reliability fixes', 'App connectivity updates'],
   },
   {
-    product: '[IoT home safety device]',
-    version: '[v0.x.x — pending]',
+    product: 'IoT home safety device',
+    version: 'Pre-release',
     status: 'pending',
-    releaseDate: '[RELEASE DATE PENDING]',
-    notes: [
-      '[Gas sensor calibration update]',
-      '[Wi-Fi reconnect improvement]',
-      '[Alarm tone adjustment]',
-    ],
-    downloadHref: '#',
+    releaseDate: 'To be announced',
+    notes: ['Gas sensor calibration updates', 'Wi-Fi reconnect improvements', 'Alarm tone adjustments'],
   },
   {
-    product: '[Smart appliance control]',
-    version: '[v0.x.x — pending]',
+    product: 'Smart appliance control',
+    version: 'Pre-release',
     status: 'pending',
-    releaseDate: '[RELEASE DATE PENDING]',
-    notes: ['[Schedule reliability fix]', '[Energy metering accuracy update]', '[OTA foundation]'],
-    downloadHref: '#',
+    releaseDate: 'To be announced',
+    notes: ['Schedule reliability fixes', 'Energy metering accuracy updates', 'OTA foundation'],
   },
   {
-    product: '[IoT gateway node]',
-    version: '[v0.x.x — pending]',
+    product: 'IoT gateway node',
+    version: 'Pre-release',
     status: 'pending',
-    releaseDate: '[RELEASE DATE PENDING]',
-    notes: ['[LTE connection stability]', '[MQTT retry improvements]', '[Edge buffer expansion]'],
-    downloadHref: '#',
+    releaseDate: 'To be announced',
+    notes: ['LTE connection stability', 'MQTT retry improvements', 'Edge buffer expansion'],
   },
 ] as const;
 
@@ -71,15 +63,14 @@ export default function FirmwarePage() {
             />
             <div className="max-w-4xl">
               <p className="font-mono text-[12px] font-medium tracking-[0.18em] text-cyan-400 uppercase">
-                [SUPPORT / FIRMWARE]
+                Support · Firmware
               </p>
               <h1 className="text-steel-100 font-display mt-4 text-4xl leading-[1.04] font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl">
                 Firmware
               </h1>
               <p className="text-steel-200 mt-5 max-w-2xl text-base sm:text-lg">
-                [Release notes and download links for all ARIOT hardware. All firmware is in
-                pre-release — final versions will be published alongside official hardware
-                availability.]
+                Release notes and download links for ARIOT hardware. Firmware is currently in
+                pre-release — published versions will appear here as field validation completes.
               </p>
             </div>
           </Container>
@@ -91,7 +82,7 @@ export default function FirmwarePage() {
           <SectionHeader
             eyebrow="All products"
             title="Current firmware status"
-            subhead="[Firmware files are placeholder until hardware reaches the firmware-release milestone.]"
+            subhead="Firmware files are published once hardware reaches the firmware-release milestone. Status below reflects today's stage."
             size="compact"
           />
           <div className="flex flex-col gap-6">
@@ -138,11 +129,9 @@ export default function FirmwarePage() {
                     ))}
                   </ul>
 
-                  <Button asChild variant="secondary" size="sm" className="w-full sm:w-auto">
-                    <Link href={release.downloadHref}>
-                      <ArrowDownToLine className="h-4 w-4" />
-                      Download firmware
-                    </Link>
+                  <Button variant="secondary" size="sm" disabled className="w-full sm:w-auto">
+                    <ArrowDownToLine className="h-4 w-4" />
+                    Downloads open at release
                   </Button>
                 </CardBody>
               </Card>
@@ -157,11 +146,11 @@ export default function FirmwarePage() {
             <CardBody className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between md:p-8">
               <div>
                 <h2 className="text-steel-100 font-display text-2xl font-semibold tracking-tight">
-                  [Need firmware recovery help?]
+                  Need firmware recovery help?
                 </h2>
                 <p className="text-steel-300 mt-2 text-sm">
-                  [If a firmware update has left your device in an unexpected state, contact support
-                  before attempting another update.]
+                  If a firmware update has left your device in an unexpected state, contact support
+                  before attempting another update.
                 </p>
               </div>
               <Button asChild variant="primary">

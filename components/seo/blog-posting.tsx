@@ -10,8 +10,8 @@ interface BlogPostingProps {
   image?: string;
   /** Author name(s). Defaults to site name. */
   author?: string[];
-  /** ISO 8601 publication date. */
-  datePublished: string;
+  /** ISO 8601 publication date. Omitted until the article is officially released. */
+  datePublished?: string;
   /** ISO 8601 last modified date. */
   dateModified?: string;
   /** Page URL path. */
@@ -53,7 +53,7 @@ export function BlogPosting({
           '@type': 'Organization',
           name: siteConfig.fullName,
         },
-        datePublished,
+        ...(datePublished ? { datePublished } : {}),
         ...(dateModified ? { dateModified } : {}),
         ...(tags && tags.length > 0 ? { keywords: [...tags] } : {}),
         mainEntityOfPage: {

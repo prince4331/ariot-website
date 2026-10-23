@@ -124,7 +124,6 @@ export async function updateProductVariantWithContext(
           optionValues: data.optionValues,
           priceMinor: data.priceMinor != null ? BigInt(data.priceMinor) : null,
           currency: data.currency,
-          stock: data.stock,
           barcode: data.barcode,
           isDefault: data.isDefault,
         },

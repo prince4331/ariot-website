@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
 import { NavLink } from './nav-link';
@@ -8,6 +9,7 @@ import { MoreMenu } from './more-menu';
 const NAV_ITEMS = [
   { label: 'Home', href: '/' },
   { label: 'R&D', href: '/research' },
+  { label: 'Robotics', href: '/robotics' },
   { label: 'Workspace', href: '/workspace' },
   { label: 'Components', href: '/components' },
   { label: 'Solutions', href: '/solutions' },
@@ -30,7 +32,7 @@ const MOBILE_NAV_ITEMS = [
  * MobileDrawer, MoreMenu) so the header itself ships zero client JS.
  *
  * Primary navigation follows the approved public IA:
- *   Home · R&D · Workspace · Components · Solutions · About
+ *   Home · R&D · Robotics · Workspace · Components · Solutions · About
  * Blog and Support live under the "More" menu (secondary navigation),
  * with footer links as a second entry point.
  *
@@ -47,12 +49,33 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label="ARIOT — home"
-          className="font-display text-steel-100 ease-out-quart focus-visible:ring-offset-bg-base inline-flex items-center rounded-sm text-lg font-semibold tracking-tight transition-colors duration-200 hover:text-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:outline-none md:text-xl"
+          className="inline-flex items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
         >
-          ARIOT
+          {/* Desktop: full logo (icon + wordmark) — hidden on mobile */}
+          <span className="hidden md:inline-flex">
+            <Image
+              src="/media/brand/ariot-logo-full.png"
+              alt=""
+              width={46}
+              height={40}
+              className="h-9 w-auto"
+              priority
+            />
+          </span>
+          {/* Mobile: compact icon mark only */}
+          <span className="md:hidden">
+            <Image
+              src="/media/brand/ariot-logo-icon.png"
+              alt=""
+              width={104}
+              height={28}
+              className="h-7 w-auto"
+              priority
+            />
+          </span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.href} href={item.href}>
               {item.label}
@@ -61,7 +84,7 @@ export function SiteHeader() {
           <MoreMenu />
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Button asChild size="sm" variant="ghost">
             <Link href="/contact">Contact</Link>
           </Button>

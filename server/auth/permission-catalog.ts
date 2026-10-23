@@ -74,6 +74,10 @@ export const PERMISSIONS = {
   settings: {
     write: 'settings.write',
   },
+  inventory: {
+    read: 'inventory.read',
+    adjust: 'inventory.adjust',
+  },
 } as const;
 
 /** The global wildcard — ONLY for SUPER_ADMIN. */
@@ -115,6 +119,7 @@ export const ROLE_PERMISSION_SETS = {
     PERMISSIONS.blog.write,
     PERMISSIONS.categories.read,
     PERMISSIONS.categories.write,
+    PERMISSIONS.inventory.read,
     PERMISSIONS.media.read,
     PERMISSIONS.media.write,
     PERMISSIONS.products.read,
@@ -137,6 +142,7 @@ export const ROLE_PERMISSION_SETS = {
     PERMISSIONS.analytics.sales_read,
     PERMISSIONS.customer.read,
     PERMISSIONS.customer.write,
+    PERMISSIONS.inventory.read,
     PERMISSIONS.order.read,
     PERMISSIONS.order.refund,
     PERMISSIONS.order.transition,

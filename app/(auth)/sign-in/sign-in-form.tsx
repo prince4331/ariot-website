@@ -45,7 +45,11 @@ export function SignInForm({ providerEnabled, initialError }: SignInFormProps) {
     try {
       await authClient.signIn.social({
         provider: 'google',
-        callbackURL: '/',
+        // Land in the admin dashboard on the host that initiated sign-in
+        // (the admin subdomain in production, localhost in development).
+        // Relative URLs only — Better Auth validates them against the
+        // trusted-origins list (D-082/D2).
+        callbackURL: '/admin',
         errorCallbackURL: '/sign-in?error=oauth',
       });
       // On success Better Auth performs a full-page redirect to Google; this

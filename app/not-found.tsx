@@ -31,15 +31,15 @@ export default function NotFound() {
         }}
       />
       <Container className="text-center">
-        <Badge variant="cyan">[ERROR · 404]</Badge>
+        <Badge variant="cyan">ERROR · 404</Badge>
 
         <h1 className="mt-6 font-display text-5xl font-semibold tracking-tight text-steel-100 md:text-7xl">
           Off the map.
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-lg text-steel-200">
-          [The page you were looking for has been moved, retired, or never
-          existed in the first place.]
+          The page you were looking for has been moved, retired, or never
+          existed in the first place.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
@@ -58,7 +58,7 @@ export default function NotFound() {
         </div>
 
         <p className="mt-12 font-mono text-xs text-steel-400">
-          [If you believe this is a mistake, contact support.]
+          If you believe this is a mistake, contact support.
         </p>
       </Container>
     </main>

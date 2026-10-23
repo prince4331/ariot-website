@@ -158,7 +158,6 @@ export function detectChanges(current: CurrentVariant, data: VariantFieldsInput)
   const currentPrice = current.priceMinor?.toString() ?? null;
   if (currentPrice !== (data.priceMinor ?? null)) changed.push('priceMinor');
   if ((current.currency ?? null) !== (data.currency ?? null)) changed.push('currency');
-  if (current.stock !== data.stock) changed.push('stock');
   if ((current.barcode ?? null) !== (data.barcode ?? null)) changed.push('barcode');
   if (current.isDefault !== data.isDefault) changed.push('isDefault');
   return changed;

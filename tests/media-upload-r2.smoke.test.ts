@@ -3,8 +3,9 @@
  * test (STORAGE-1R / D-067).
  *
  * Opt-in behavior:
- *   - All six R2 vars + MEDIA_UPLOAD_TOKEN_SECRET set, dev-bucket sentinel ok:
- *     runs the 12-step real flow against a dev bucket and exits 0 on PASS.
+ *   - All five R2 credential vars + MEDIA_UPLOAD_TOKEN_SECRET set, dev-bucket
+ *     sentinel ok: runs the 12-step real flow against a dev bucket and exits 0
+ *     on PASS.
  *   - Any R2 var absent: skipped (exits 0). The standard `it.skip` makes
  *     node:test print "SKIPPED" and the suite passes.
  *   - Partial creds (some vars set, others missing): FAIL with a clear error
@@ -30,14 +31,20 @@ import {
 } from '../server/storage/upload-context.ts';
 import { buildPublicMediaKey } from '../server/storage/upload-keys.ts';
 
-const REQUIRED = [
+/**
+ * Credentials the R2 provider genuinely requires (server/env.ts `getR2Config`):
+ * the four R2_* values plus the upload-completion token secret.
+ * `R2_PUBLIC_BASE_URL` is deliberately NOT listed — the app treats it as
+ * optional (media URLs fall back to site-relative paths).
+ */
+const R2_CREDENTIALS = [
   'R2_ACCOUNT_ID',
   'R2_ACCESS_KEY_ID',
   'R2_SECRET_ACCESS_KEY',
   'R2_BUCKET_NAME',
-  'MEDIA_UPLOAD_TOKEN_SECRET',
-  'PUBLIC_BASE_URL',
 ] as const;
+
+const TOKEN_SECRET = 'MEDIA_UPLOAD_TOKEN_SECRET';
 
 /** Bucket names that must never be touched by smoke tests. */
 const FORBIDDEN_BUCKETS = new Set<string>(['ariot-prod', 'ariot-production', 'ariot-live']);
@@ -49,15 +56,24 @@ interface EnvState {
   bucketName: string;
 }
 
+/**
+ * Mirrors the app's own configuration contract (server/env.ts):
+ *   - no R2 credential set at all → not configured (the local provider is in
+ *     use) → the smoke test skips;
+ *   - some but not all R2 credentials set → misconfiguration → FAIL loudly;
+ *   - all four R2 credentials set but the token secret missing → the app
+ *     refuses to boot → FAIL loudly.
+ */
 const inspectEnv = (): EnvState => {
-  const present = REQUIRED.filter((k) => !!process.env[k]);
-  if (present.length === 0) {
+  const presentCredentials = R2_CREDENTIALS.filter((k) => !!process.env[k]);
+  const bucketName = process.env.R2_BUCKET_NAME ?? '';
+
+  if (presentCredentials.length === 0) {
     return { ready: false, partial: false, forbiddenBucket: false, bucketName: '' };
   }
-  if (present.length !== REQUIRED.length) {
+  if (presentCredentials.length !== R2_CREDENTIALS.length || !process.env[TOKEN_SECRET]) {
     return { ready: false, partial: true, forbiddenBucket: false, bucketName: '' };
   }
-  const bucketName = process.env.R2_BUCKET_NAME ?? '';
   if (FORBIDDEN_BUCKETS.has(bucketName)) {
     return { ready: false, partial: false, forbiddenBucket: true, bucketName };
   }
@@ -96,7 +112,7 @@ describe('R2 dev-bucket smoke test (opt-in)', () => {
   if (envState.partial) {
     it('fails loudly on partial R2 configuration', () => {
       assert.fail(
-        'Partial R2 configuration detected — set all of R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, MEDIA_UPLOAD_TOKEN_SECRET, PUBLIC_BASE_URL or unset them all.',
+        'Partial R2 configuration detected — set all of R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, MEDIA_UPLOAD_TOKEN_SECRET or unset them all.',
       );
     });
     return;

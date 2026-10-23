@@ -241,7 +241,7 @@ All operations in a DB transaction with row-level locks on `Product.stock` / `Pr
 - Authoritative columns: `Product.stock` (when no variants) or per-`ProductVariant.stock`.
 - Movements logged in a `StockMovement` table (FK product/variant, delta, reason, orderId / refundId / adjustmentId, actorId).
 - Reorder point + reorder quantity per product/variant; low-stock alert in `/admin` Overview when `stock <= reorderPoint`.
-- Negative stock not allowed unless `stockPolicy = BACKORDER` (in which case `stock` may go negative and is flagged).
+- Physical stock is **never** negative. `stockPolicy = BACKORDER` means the product may be **sold while on-hand quantity is zero** — it does **NOT** permit a negative physical `stock` value (corrected 2026-08-29, decision D-076 / D-071). `MADE_TO_ORDER` may be ordered with zero on-hand. Stock authority: a product with active variants uses each `ProductVariant.stock`; a product without variants uses `Product.stock` (D-072).
 
 ---
 

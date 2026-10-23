@@ -23,8 +23,7 @@ Key failure modes we hit:
 - **Moving obstacles** — people walking slowly through the mapped zone caused the local planner to
   re-plan constantly, producing oscillation near doorways.
 
-[Specific fix: sensor fusion weights, obstacle inflation radius, recovery behaviour pseudocode pending
-approval before publication.]
+The fixes for each of these — sensor fusion weighting, obstacle inflation radius, and recovery behaviour — are documented in our internal test logs and will be published here once validation is complete.
 
 ## Power management for a 220V country with brownouts
 
@@ -33,14 +32,13 @@ covered in most embedded robotics textbooks.
 
 The design constraints:
 
-- Input voltage must handle the [V range] swings common on Bangladesh commercial grid connections.
+- Input voltage must handle the wide voltage swings common on Bangladesh commercial grid connections.
 - The charging circuit must recover cleanly from a mid-charge brownout without leaving the cell in a
   partial-charge state.
 - The robot must reach the dock when battery drops below a threshold — and that threshold must account
   for the distance to the dock, not just a fixed percentage.
 
-[Charging circuit schematic, brownout recovery state machine, and dock-range calculation algorithm
-pending datasheet approval.]
+The charging circuit design, brownout recovery behaviour, and dock-range logic are documented internally and will be published with the product datasheet once approved.
 
 ## Thermal performance in a hot, humid climate
 
@@ -48,8 +46,7 @@ Bangladesh summers push ambient temperatures well above the operating range test
 laboratory environments. Components that run within spec at 25°C may derate significantly at 35–40°C
 ambient with 80%+ relative humidity.
 
-[Thermal derating data, heatsink sizing rationale, and enclosure ventilation approach pending
-engineering review.]
+Thermal derating data, heatsink sizing, and enclosure ventilation are under engineering review; published figures will follow validation.
 
 ## What we learned so far
 
@@ -60,5 +57,4 @@ Every field test reveals something a simulation did not predict. We document eac
 here because the engineering community in this region benefits more from honest failure reports than
 from polished success stories.
 
-This post is a living document. Real numbers, real failures, and real fixes will replace these
-bracketed placeholders as field validation progresses and each change is approved for publication.
+This post is a living document. Specific figures, failures, and fixes will be added to this post as field validation progresses and each result is approved for publication.

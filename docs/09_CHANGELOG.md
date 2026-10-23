@@ -20,6 +20,210 @@
 
 ## Changelog
 
+### 2026-10-23 (D2 — Admin-Subdomain Authentication, Production Email Routing)
+
+#### Auth — admin subdomain (D-082 → D-083, I-036 Resolved)
+- **`server/auth.ts`** — `resolveTrustedOrigins()` now yields exactly the two production origins (`BETTER_AUTH_URL` + `NEXT_PUBLIC_SITE_URL`, exact strings, no wildcards) and excludes non-HTTPS/loopback origins in production (the `http://localhost:3000` client-schema default can no longer widen the production CSRF trust list). Google gate uses the new shared predicate. Cookie posture unchanged: host-only (no `cookieDomain`).
+- **`server/auth/google-provider.ts`** (new) — `isGoogleProviderEnabled(id, secret)`, shared by `server/auth.ts` and the sign-in page so provider state and button state cannot diverge.
+- **`app/(auth)/sign-in/page.tsx`** — uses the shared predicate.
+- **`app/(auth)/sign-in/sign-in-form.tsx`** — post-login `callbackURL` now `/admin` (relative; passes trusted-origins validation) instead of `/`.
+- **`app/(admin)/layout.tsx`** — non-admin sessions now redirect to the absolute `NEXT_PUBLIC_SITE_URL` instead of `/` (on the admin host, a relative redirect would bounce back through `proxy.ts` rule 3 → infinite loop). Unauthenticated → `/sign-in`; unauthorized → public site; RBAC re-resolved server-side per request (unchanged).
+- **Runtime verification (no network/DB)** against `better-auth@1.6.23`: trusted admin origin + configured creds → sign-in POST returns the Google consent URL with `redirect_uri=https://admin.ariottech.com/api/auth/callback/google` (exactly the URI registered on the downloaded OAuth client); cookie-bearing POST with an untrusted `Origin` → `403 INVALID_ORIGIN` before any endpoint logic (origin check fires when a `Cookie` header is present; cookie-less cross-site POSTs have no ambient authority, and cross-site navigation attacks are blocked by better-auth's fetch-metadata CSRF middleware).
+
+#### Host routing (Task 3 — no loops, public site untouched)
+- **`proxy.ts`** (new; Next 16 renamed middleware → proxy) — matcher limited to `/`, `/admin*`, `/sign-in*`: apex `/admin*` + `/sign-in*` → `https://admin.ariottech.com` (308, path+query preserved); admin `/` → `/admin` when a session cookie is present (both `better-auth.session_token` and `__Secure-` variants) else `/sign-in` (307, relative targets). Reads host env per request; split inactive when hosts are equal (localhost dev behaves exactly as before). Rule 3 is routing convenience only — authorization stays in the layout.
+- **`deploy/Caddyfile`** — apex `handle` blocks redirect `/admin*` + `/sign-in*` to the admin host (same 308 semantics as the proxy, defense in depth); both `reverse_proxy` blocks set `header_up Host {http.request.host}` so the app's host-based routing and Better Auth origin checks see the real hostname. **Bug fixed**: bare `{$CADDY_ACME_EMAIL}` failed to parse whenever the var was unset (CI, `caddy validate`, bare `docker run`) → `{$CADDY_ACME_EMAIL:-admin@ariottech.com}`, matching the compose default; `caddy validate` now passes with the var both unset and set.
+
+#### Email — production routing (Task 5, I-031 reduced to config)
+- **`server/mail/routing.ts`** (new) — `resolveMailFrom()` / `resolveContactInbox()` read `MAIL_FROM` (Resend-verified sender) + `MAIL_TO` (owner-approved inbox); dev/test keep the historical placeholder fallbacks; production throws `MailRoutingError` (names the missing variable, never a value) at send time so `/api/contact` + `/api/quote` surface an error instead of faking success.
+- **`server/mail/templates/{contact-notification,quote-notification,newsletter-welcome}.ts`** — use the routing helpers; no more `noreply@ariot.example` senders. Zod validation, rate limiting, and form UX unchanged.
+- **`server/env.ts`** — `MAIL_FROM`/`MAIL_TO` added to the server schema with email-shape refinements (malformed values fail boot in every environment) + a production boot warning when either is unset.
+- **`lib/seo/site.ts`** — comment corrected: `siteConfig.contact.email` is a bracketed public-identity placeholder (still filtered out of JSON-LD); operational routing is `MAIL_TO`.
+
+#### Config / env / Docker (Task 6)
+- **`compose.production.yml`** — `BETTER_AUTH_URL` default flipped to `https://admin.ariottech.com` (Google callback derives from it); `MAIL_FROM`/`MAIL_TO` passed through to the web service.
+- **`.env.production.example`** — `BETTER_AUTH_URL` = admin host + callback/JavaScript-origin notes matching the downloaded OAuth client; new `MAIL_FROM`/`MAIL_TO` entries (empty — owner decides) with Resend verification requirements; localhost-Google-testing caveat documented.
+- **`.env.example`** — added the `MAIL_FROM`/`MAIL_TO` template entries; Google callback note corrected (local = localhost, production = admin subdomain); `BETTER_AUTH_URL` production posture documented.
+
+#### Tests (Task 7 — +26 focused tests; suite now 506)
+- **`tests/admin-subdomain-proxy.test.ts`** (new, 16) — routing matrix incl. query preservation, both session-cookie names, loop-safety, public routes + `/api/*` passthrough, unlisted hosts, split-inactive postures.
+- **`tests/auth-config.test.ts`** (new, 9) — subprocess-isolated (env frozen at import): baseURL, exact trusted-origins (no wildcards/localhost), runtime 403 origin rejection, golden Google `redirect_uri`, apex origin accepted, host-only cookies, provider on/off, Prisma adapter.
+- **`tests/contact-mail-config.test.ts`** (new, 7) — dev fallbacks, production fail-closed (`MailRoutingError`), error messages never leak values, configured routing in production, bracketed placeholder never published, no `mailto:` in public UI.
+- Live Google login **unverified** until a real HTTPS browser flow completes post-deployment.
+
+#### Verification
+- Full suite **506 tests / 505 pass / 0 fail / 1 skipped** (opt-in R2 smoke) · `npx prisma validate` ✅ · `npx prisma generate` ✅ · `pnpm typecheck` 0 errors ✅ · `pnpm lint --max-warnings 0` ✅ · `pnpm build` ✅ (`ƒ Proxy (Middleware)` compiled) · `git diff --check` ✅ · `docker compose -f compose.production.yml config` ✅ · `caddy validate` (env unset + set) ✅. No Prisma schema/migration change; no Docker rebuilds; no deploy; nothing committed or pushed.
+
+### 2026-10-23 (D1 — Closure Session: Verification, Admin-Subdomain Routing, Repo Hygiene)
+
+#### Verification (live Docker test stack — no rebuild needed, container/image untouched)
+- **Cache publication suite (D-081) verified end-to-end** — disposable script run inside `ariotd1-web-1`: **37/37 checks pass** across all 8 required behaviours — published post in `/blog`; posts in homepage/Robotics/solutions( IoT)/Research sections; admin edit visible without image rebuild (container `StartedAt` + image digest identical before/after); unpublish removes public visibility; drafts private; slug rename invalidates old (not-found, no content) and new slugs; repeated reloads serve fresh content while caching HITs (cache active, not bypassed); a not-found cached before publish flips to content after publish (no permanent stale data). Fixtures are disposable `d1-cache-*` rows in the isolated stack only.
+- **Soft-404 observed and classified** — `notFound()` on matched dynamic segments renders HTTP 200 (site-wide, pre-existing; content never leaks) → recorded as **I-035**, not a D1 regression.
+
+#### Config / Infrastructure
+- **`deploy/Caddyfile`** — added the `admin.ariottech.com` site block (`encode` + `reverse_proxy web:3000`): owner-confirmed admin dashboard host, same `web` container (host routing only, RBAC unchanged). Validated with `caddy validate` (exit 0). DNS prerequisite documented.
+- **`docs/07_DECISIONS.md`** — new **D-082**: admin subdomain architecture + the exact Better Auth changes deferred to D2 (verified against installed `better-auth@1.6.23` source: origin check, host-only OAuth state cookie, `redirect_uri` derived from `BETTER_AUTH_URL`).
+- **`.env.production.example`** — no value changes required (placeholders verified intact); admin-callback requirement recorded in D-082 / `deploy/README.md` § 10.
+
+#### Repo hygiene (GitHub readiness)
+- **CRLF → LF normalization** on 9 text files (`.gitignore`, `app/(marketing)/blog/page.tsx`, `app/(marketing)/blog/[slug]/page.tsx`, `pnpm-workspace.yaml`, `components/marketing/blog-category-icon.ts`, `components/marketing/blog-markdown.tsx`, `lib/utils/format-date.ts`, `lib/utils/markdown-toc.ts`, `tests/blog-post-integration.test.ts`) — content-identical; fixes `git diff --check` (exit 0). Root cause: Windows-era files (I-033 migration).
+- **GitHub readiness audited** — 64 essential untracked paths (source, tests, deployment files, migration, brand PNGs); secrets scan clean; `.env`/generated dirs properly ignored; **exclude `z.txt`** (Cline tool artifact) from any commit.
+
+#### Docs
+- **`docs/06_PROGRESS_LOG.md`**, **`docs/08_KNOWN_ISSUES.md`** (I-035/I-036/I-037 + footer counts), **`docs/10_AI_AGENT_CONTEXT.md`**, **`deploy/README.md`** (DNS row, admin callback note, I-034 first-deploy ordering, tagged-cache editorial note) reconciled to verified facts.
+
+#### Final verification (runner-derived)
+- `npx prisma validate` ✅ · `npx prisma generate` ✅ · `pnpm typecheck` ✅ · `pnpm lint` (0 warnings) ✅ · `pnpm build` ✅ (67 pages) · `git diff --check` ✅ · full canonical suite: **474 tests / 473 pass / 0 fail / 1 skipped (opt-in R2 smoke)** across 30 files.
+
+### 2026-10-23 (D1 — Publication/Cache Defect Fix)
+
+#### Code
+- **`server/public/tagged-cache.ts`** (new): Tagged read cache for DB-backed public content. Wraps reads in `unstable_cache` with an explicit `public-blog` tag (plus a per-slug tag) so the cached page entry carries the tag metadata Next.js needs. Also exports `IMMEDIATE_INVALIDATION` (`{ expire: 0 }`) — the only profile that expires a tag at the moment of the call.
+- **`server/public/blog.ts`**: `listPublishedPosts` and `getPublishedPostBySlug` now read through the tagged cache. The cache is bypassed when a caller supplies a non-default `db` (the disposable-database test seam), so integration tests never read another database's rows. The uncached read logic moved into `readPublishedPosts` / `readPublishedPostBySlug`.
+- **`app/api/admin/blog/route.ts`**, **`app/api/admin/blog/[id]/route.ts`**: Publish/update now call `revalidateTag(PUBLIC_BLOG_TAG, IMMEDIATE_INVALIDATION)` (and the per-slug tag) **before** `revalidatePath(...)`.
+
+#### Defect fixed (verified in the live Docker stack)
+Publishing a post through the admin API returned HTTP 200, but the public `/blog`, `/`, and `/blog/[slug]` pages kept serving the old content **indefinitely** — `x-nextjs-cache: HIT` forever, with no rebuild or restart involved.
+
+Root cause (traced through `next@16.2.4`): a cached `APP_PAGE` entry is invalidated only when a tag in its `x-next-cache-tags` header has been revalidated. That header is written from `workUnitStore.tags`, which is populated **only** by `unstable_cache` / `"use cache"` + `cacheTag()`. The public pages read PostgreSQL through plain Prisma calls, so they carried no tag metadata and `revalidatePath('/blog', 'page')` matched nothing — a silent no-op.
+
+#### Tests
+- Full suite: 468 tests / 62 suites — **467 pass, 0 fail, 1 skip** (opt-in R2 smoke).
+
+### 2026-10-22 (D1 — Production Docker Preparation)
+
+#### Infrastructure (new)
+- **`Dockerfile`** (new): Multi-stage build — `deps` (pnpm, frozen lockfile) → `build` (prisma generate + `next build` with `output: 'standalone'`) → `runtime` (standalone server, non-root `node` user, HEALTHCHECK on `/api/health`) / `migrate` (prod-only deps + `prisma migrate deploy`) / `seed` (full source, explicit one-shot seed). Pinned `node:24.22.0-bookworm-slim`. No `.env` in any image; no secrets as build args.
+- **`compose.production.yml`** (new): `web` (private network only), `db` (PostgreSQL 16.10, `pgdata` volume, no published port), `migrate` (one-shot, `service_completed_successfully` gate), `caddy` (only published ports 80/443/443-udp, `caddy_data` volume for certs), `seed` (profile `initial`, never automatic). Restart policies, health checks, and memory limits sized for a 4 GB VPS.
+- **`.dockerignore`** (new): Excludes `.env*`, `node_modules`, `.next`, `tests`, `docs`, `deploy`, local agent dirs.
+- **`deploy/Caddyfile`** (new): Automatic HTTPS for `ariottech.com`; `www.ariottech.com` → apex 308 redirect. App security headers (CSP/HSTS) stay in `next.config.ts` — not duplicated.
+- **`deploy/README.md`** (new): Canonical runbook — OVH Ubuntu setup, firewall, Docker Engine/Compose, DNS, Caddy, env, migrations, seed, admin bootstrap, Resend domain verification, media dir, releases, backups, rollback (code vs migration), monitoring.
+- **`.env.production.example`** (new): Every variable the app actually reads (`server/env.ts`) + Compose infra vars, with `CHANGE_ME` placeholders and the OAuth callback path.
+- **`docs/VPS_DEPLOYMENT.md`** (rewritten): Retired the PM2 + host Nginx + Certbot guide; now points at the Docker/Compose runbook.
+
+#### Code
+- **`next.config.ts`**: `output: 'standalone'` (self-hosted deployment).
+- **`server/env.ts`**: Optional string vars now treat an empty string as unset (Compose renders absent optional vars as `''`).
+- **`app/api/health/route.ts`** (new): Minimal liveness probe for the container HEALTHCHECK.
+- **`app/favicon.ico`** (modified): Replaced the default Next.js scaffold icon with a 16/32/48/64 multi-resolution ICO derived from the official ARIOT "A" mark (gradient and proportions preserved, transparent padding).
+- **`prisma/seed.ts`**: Seed is now **insert-only** (`ON CONFLICT … DO NOTHING`) for all content rows — a rerun can no longer overwrite admin-edited posts/categories/roles/media nor force re-publication. SystemSetting bookkeeping still updates in place.
+- **`deploy/ecosystem.config.js.example`, `deploy/nginx.conf.example`**: Removed (PM2/Nginx are not part of the Docker architecture).
+
+#### Tests
+- **`tests/seed-safety.test.ts`** (new, 4 tests): Seed safety + idempotency + `prisma migrate deploy` on an empty DB (asserts `StockMovement` exists and no migration failed/rolled back).
+- **`tests/database-timezone.test.ts`**: Disposable DB is now explicitly set to a non-UTC timezone so the test's premise ("the DB itself is not UTC") holds on UTC hosts.
+- **`tests/media-upload-r2.smoke.test.ts`**: Partial-config detection now mirrors the app contract (`server/env.ts`): the four `R2_*` credentials + `MEDIA_UPLOAD_TOKEN_SECRET`; `R2_PUBLIC_BASE_URL` is optional. The opt-in R2 smoke test correctly skips again.
+- **Full suite**: 468 tests / 62 suites — **467 pass, 0 fail, 1 skip** (opt-in R2 smoke).
+
+#### Docs
+- `docs/09_CHANGELOG.md`, `docs/10_AI_AGENT_CONTEXT.md`, `docs/06_PROGRESS_LOG.md`, `docs/07_DECISIONS.md`, `docs/08_KNOWN_ISSUES.md` — D1 entry.
+
+### 2026-09-01 (L3 — Minimal Marketing CMS for Launch)
+
+#### Code
+- **`prisma/seed.ts`** (modified): BlogPost rows now seeded `PUBLISHED` with `publishedAt = file mtime` (honest, deterministic). Dead `enableExtensions` removed from `blog-post-integration.test.ts`. Added `fileMtimeIso()` helper.
+- **`tests/helpers/register-hooks.mjs`** (modified): Resolves `next/*` subpath exports (`next/headers`, etc.) so `node --test` can import production server modules. Loads `.env` into `process.env` at startup.
+- **`tests/blog-post-integration.test.ts`** (modified): `pushSchema()` no longer uses Prisma 7-removed `--skip-generate` flag. Extensions (`citext`, `pg_trgm`) created before `prisma db push` (fixes schema-push failure). `auditCount` TS signature fixed.
+- **`components/admin/blog/blog-editor.tsx`** (modified): Slug auto-gen moved from `useEffect` to `updateField` handler (lint-clean). `routerRef` uses `useEffect` + nullable type.
+- **`components/admin/blog/media-picker.tsx`** (modified): Initial load moved from `useEffect` to open-toggle click handler (lint-clean).
+
+#### Tests (+25 files, +463 tests across 28 files)
+- **`tests/blog-post-integration.test.ts`** (14) — L3 blog integration: create draft, draft-not-public, publish, published-visible, slug-unique, unknown-fields rejected, update, no-op, unauthorized-denied, read-only-denied, unpublish, archive, category filter, homepage ordering.
+- **Full suite regressions**: 463 pass / 0 fail / 1 expected opt-in skip (R2 smoke). All 28 test files green.
+
+#### Verification
+- `npx prisma validate` ✅ · `npx prisma generate` ✅ · `pnpm typecheck` 0 errors ✅ · `pnpm lint` 0 warnings ✅ · `pnpm build` ✅ (64 routes). No schema/migration change. No deployment.
+
+#### Docs
+- `docs/SITE_MAP.md` — added `/robotics`, `/research`, `/workspace`, `/components` public routes; blog + admin routes annotated with L3 status; contact verified.
+- `docs/PAGE_BLUEPRINTS.md` — added `/robotics` and `/research` sections; blog section annotated with DB-backed implementation note.
+- `docs/05_IMPLEMENTATION_MASTER_PLAN.md` — steps 2.5.1/2/4, 2.7.2/4 marked ✅ L3; 2.5.3 marked `[future]`.
+- `docs/06_PROGRESS_LOG.md` — L3 completion entry; Phase 2: 12/43 steps (28%).
+- `docs/10_AI_AGENT_CONTEXT.md` — L3 status, test counts, launch scope.
+- `docs/ADMIN_DASHBOARD_PLAN.md` — blog admin marked LIVE.
+
+### 2026-08-29 (Step 2.4.6-0 — UTC Timestamp Infrastructure Correction + Inventory Architecture)
+
+#### Code
+- **`server/db-timezone.ts`** (new): Central UTC session policy (`D-070`). `utcPoolConfig()` builds a pg `PoolConfig` that pins every PrismaPg/raw-pg session to UTC via the libpq startup option `-c timezone=UTC`, decodes naive `timestamp` columns as UTC (not host-local), and forces `pg` to encode `Date` params as UTC. Single source of truth — no per-query patches, no `process.env.TZ` reliance.
+- **`server/db.ts`** (modified): Prisma client now `new PrismaClient({ adapter: new PrismaPg(utcPoolConfig(getDatabaseUrl())) })` — every application session runs in UTC.
+- **`server/db-health.ts`** (new): `checkDatabaseTimezone()` / `assertDatabaseTimezoneUtc()` — verify a live session reports `TimeZone = UTC` without exposing credentials.
+- **`app/api/admin/health/database/route.ts`** (new): `GET /api/admin/health/database` (SUPER_ADMIN only) exposes the UTC invariant check (observed/expected only).
+- **`scripts/set-database-timezone-utc.ts`** (new): `pnpm db:timezone` — dry-run by default; `--apply` runs `ALTER DATABASE <dev> SET timezone TO 'UTC'` on a loopback-only, non-staging/non-production DB and verifies on a NEW connection.
+- **`scripts/bootstrap-admin.ts`**, **`scripts/reconcile-role-permissions.ts`** (modified): raw-pg pools now use `utcPoolConfig`.
+- **`tests/local-upload-integration.test.ts`**, **`media-upload-local.smoke.test.ts`**, **`upload-complete-integration.test.ts`**, **`product-media-integration.test.ts`**, **`product-denied-write.test.ts`**, **`product-editor-integration.test.ts`**, **`product-variants-integration.test.ts`** (modified): disposable-DB raw-pg/PrismaPg connections now route through `utcPoolConfig`, removing the old `.env` timezone hack.
+
+#### Tests (+2 files, +36 tests)
+- **`tests/db-timezone-config.test.ts`** (new, 30): pure config guards — connection-string merge, naive-timestamp decoder, type-parser dispatch, pool-config shape.
+- **`tests/database-timezone.test.ts`** (new, 6): real round trips against a deliberately non-UTC disposable DB — Prisma/pg/DB-default paths, concurrency token, audit serialization, host-`TZ` independence (Asia/Dhaka, America/Los_Angeles, UTC).
+- **`tests/helpers/timezone-host-probe.ts`** (new): child-process probe for host-`TZ` independence.
+- **`package.json`** (modified): added `db:timezone` and `test:timezone` scripts.
+
+#### Decisions
+- **D-070** UTC Database/Application Timestamp Policy. **D-071** Physical stock semantics (never negative; BACKORDER ≠ negative). **D-072** Stock authority (variant vs product). **D-073** Inventory mutation boundary (Inventory only surface). **D-074** Inventory RBAC (`inventory.read`/`inventory.adjust` matrix). **D-075** StockMovement ledger timing. **D-076** Negative-BACKORDER correction. **D-077** Adjustment concurrency (`SELECT ... FOR UPDATE`, `deltaQty`, reason+note).
+
+#### Docs
+- `docs/07_DECISIONS.md` (+8 decisions), `docs/08_KNOWN_ISSUES.md` (I-029 → Runtime Mitigated / Historical Local Data Review Pending), `docs/ECOMMERCE_PLAN.md` §7 corrected (physical stock never negative), `docs/06_PROGRESS_LOG.md` (2.4.6-0 entry), `docs/10_AI_AGENT_CONTEXT.md`, `docs/05_IMPLEMENTATION_MASTER_PLAN.md`, `docs/ADMIN_DASHBOARD_PLAN.md`, `docs/DATABASE_SCHEMA_PLAN.md` updated.
+
+#### Verification
+- `npx prisma validate` ✅ · `npx prisma generate` ✅ · `pnpm typecheck` 0 errors · `pnpm lint` 0 warnings · `pnpm build` ✅. Full suite **413 tests / 412 pass / 0 fail / 1 skipped** (R2 smoke). Dev DB `ariot` (localhost `::1`) default `TimeZone = UTC`; server default `Asia/Dhaka` (disposable test DBs inherit it, but `utcPoolConfig` pins sessions to UTC). No schema/migration change; no inventory implementation; historical rows untouched.
+
+### 2026-08-29 (Step 2.4.6A1 — Inventory Mutation Surface)
+
+#### Code
+- **`server/admin/inventory/inventory-schema.ts`** (new): `adjustInventoryRequestSchema` (strict; `productId` required, `variantId` optional, `deltaQty` int, `reason` required min 3 / max 120, `note` optional max 500); `InventoryRow` / `InventoryListResult` types.
+- **`server/admin/inventory/inventory-helpers.ts`** (new): `InventoryResult` discriminated type; `authorizeInventoryRead` / `authorizeInventoryAdjust`; `canAdjustInventory`; `actorRole`.
+- **`server/admin/inventory/adjust-inventory-executor.ts`** (new): the ONLY stock-mutation path. Resolves authority (D-072): `variantId` → variant row; absent → product row only when zero active variants (else reject). Locks the authoritative row with `SELECT … FOR UPDATE` inside one `$transaction`, computes `before + deltaQty`, rejects negative (D-071) with no write/audit, and on success updates stock + writes `AuditLog` action `INVENTORY_ADJUSTED` (before/after/deltaQty/reason/note/productId[+variantId]).
+- **`server/admin/inventory/inventory-auth.ts`** (new): `requireInventoryAdjust` / `requireInventoryRead` (session-wrapping RBAC).
+- **`server/admin/inventory/adjust-inventory.ts`**, **`list-inventory.ts`** (new): production wrappers.
+- **`app/api/admin/inventory/route.ts`** (new): `GET` list (200/401/403/500) + `POST` adjust (200/400/403/404/500).
+- **`app/(admin)/admin/inventory/page.tsx`** (new) + **`loading.tsx`** (new) + **`components/admin/inventory/inventory-table.tsx`** (new, client: DataTable + Adjust dialog) + **`inventory-table-skeleton.tsx`** (new) + Inventory nav leaf.
+- **`server/auth/permission-catalog.ts`** (modified): added `PERMISSIONS.inventory` (`inventory.read` / `inventory.adjust`); granted `inventory.read` to CONTENT_ADMIN + SALES_ADMIN (D-074).
+- **`scripts/reconcile-role-permissions.ts`**, **`prisma/seed.ts`** (modified): same D-074 grant.
+- **`components/admin/products/variant-form.tsx`** (modified): Stock input now disabled/read-only (D-073).
+- **`server/admin/products/create-product-variant-executor.ts`** (modified): variant creation initializes `stock: 0`; stock removed from audit snapshot (D-073).
+- **`server/admin/products/update-product-variant-executor.ts`**, **`product-variant-mutation-helpers.ts`** (modified): variant update no longer writes/compares `stock` (D-073).
+
+#### Tests (+2 files, +24 tests)
+- **`tests/inventory-adjustment-integration.test.ts`** (new, 12): real executors on disposable `ariot_inventory_service_test` PG — product/variant adjust, negative reject, active-variant guard, forbidden/reads, audit written, failed-no-audit, atomicity/rollback, concurrency row-lock.
+- **`tests/inventory-permission.test.ts`** (new, 12): D-074 matrix + schema contract.
+- **`tests/product-variants-service-integration.test.ts`** (modified): tests 19/24/31 updated for stock-now-read-only (D-073).
+
+#### Decisions
+- **D-073** (implemented), **D-074** (implemented), **D-077** (concurrency implemented; ledger pending A3). D-071/D-072 honored by the executor.
+
+#### Docs
+- `docs/05_IMPLEMENTATION_MASTER_PLAN.md` (2.4.6A1 row), `docs/06_PROGRESS_LOG.md` (2.4.6A1 entry + next step), `docs/07_DECISIONS.md` (D-073/D-074/D-077 → Implemented), `docs/10_AI_AGENT_CONTEXT.md` updated.
+
+#### Verification
+- `pnpm typecheck` 0 errors · `pnpm lint` 0 warnings · `pnpm build` ✅. Full suite **437 tests / 436 pass / 0 fail / 1 skipped** (R2 smoke) across **26 files**. No schema/migration change; no secret committed; no public-site behavior change.
+
+### 2026-08-29 (Step 2.4.6A3 — StockMovement Ledger)
+
+#### Code
+- **`prisma/schema.prisma`** (modified): new `StockMovement` model (append-only inventory ledger; scalar `productId`/`variantId` FK references; `deltaQty`, `quantityBefore`, `quantityAfter`, `reason`, `note`, `referenceType`/`referenceId` reserved, `createdAt`, `createdBy`). Indices on `productId`, `variantId`, `createdAt`, `createdBy`.
+- **`prisma/migrations/20260829000100_add_stock_movement/migration.sql`** (new): creates `StockMovement` + trigger `stock_movement_immutable` / function `deny_stock_movement_write` that reject UPDATE/DELETE (immutability by design). Applied to local dev DB via `prisma migrate deploy`.
+- **`server/admin/inventory/adjust-inventory-executor.ts`** (modified): every successful adjustment now writes exactly one `StockMovement` (quantityBefore/After/deltaQty/reason/note/createdBy = ctx.userId) inside the SAME `SELECT … FOR UPDATE` transaction as the stock update + `AuditLog` (D-077) — atomic, all-or-nothing.
+- **`server/admin/inventory/inventory-schema.ts`** (modified): added `StockMovementRow`, `ListStockMovementsParams`, `StockMovementListResult`.
+- **`server/admin/inventory/list-movements-executor.ts`** (new): read-only ledger list (`requireInventoryRead`, cursor pagination, productId/variantId filters, ascending by createdAt).
+- **`server/admin/inventory/list-movements.ts`** (new): production wrapper.
+- **`app/api/admin/inventory/movements/route.ts`** (new): `GET` list (200/400/401/403/500) with `productId`/`variantId`/`cursor`/`pageSize` (clamped 1–100).
+- **`components/admin/inventory/inventory-table.tsx`** (modified): added read-only **History** dialog (DataTable) showing movements per product/variant for any `inventory.read` role; Adjust still gated by `inventory.adjust`.
+- **`prisma generate`** run.
+
+#### Tests (+1 file; A1 seed updated; +13 tests)
+- **`tests/stock-movement-integration.test.ts`** (new, 13): real executors on disposable `ariot_stock_movement_test` PG — movement created on product/variant adjust, quantityBefore/After/deltaQty correct, negative rejected (no movement), forbidden/validation create none, concurrency preserves qty, immutability via trigger (UPDATE/DELETE rejected), unauthorized create none, read-only cannot adjust, archived-product adjustment rejected but history preserved.
+- **`tests/inventory-adjustment-integration.test.ts`** (modified): seed now creates `StockMovement` table + `deny_stock_movement_write` trigger; `resetState` truncates `StockMovement`.
+
+#### Decisions
+- **D-075** (implemented): `StockMovement` ledger introduced (append-only, distinct from `AuditLog`). **D-077** ledger-write concurrency implemented.
+
+#### Docs
+- `docs/05_IMPLEMENTATION_MASTER_PLAN.md` (2.4.6A3 row), `docs/06_PROGRESS_LOG.md` (2.4.6A3 entry + next step), `docs/07_DECISIONS.md` (D-075 → Implemented), `docs/08_KNOWN_ISSUES.md` (I-030 migration deploy-gated), `docs/10_AI_AGENT_CONTEXT.md`, `docs/DATABASE_SCHEMA_PLAN.md` (`StockMovement` implemented), `docs/ADMIN_DASHBOARD_PLAN.md` (Inventory History dialog) updated.
+
+#### Verification
+- `pnpm typecheck` 0 errors · `pnpm lint` 0 warnings · `pnpm build` ✅. Full suite **450 tests / 449 pass / 0 fail / 1 skipped** (R2 smoke) across **27 files**. No secret committed; no public-site behavior change; disposable test DBs dropped by test hooks.
+
 ### 2026-08-18 (Step 2.4.5 FINAL — Production-Service Verification + I-028 Correction)
 
 #### Code
@@ -727,4 +931,4 @@ The sticky `SiteHeader` uses `backdrop-filter: blur(12px)` (`backdrop-blur-md`).
 
 ---
 
-**Last Updated**: 2026-07-10
+**Last Updated**: 2026-10-23

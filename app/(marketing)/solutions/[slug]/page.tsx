@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: SolutionPageProps): Promise<M
   if (!solution) {
     return defineMetadata({
       title: 'Solution not found',
-      description: '[The requested ARIOT solution could not be found.]',
+      description: 'The requested ARIOT solution could not be found.',
       path: `/solutions/${slug}`,
       noindex: true,
     });
@@ -146,7 +146,7 @@ export default async function SolutionDetailPage({ params }: SolutionPageProps) 
           <SectionHeader
             eyebrow="How it works"
             title="The approach that makes it field-reliable"
-            subhead="[Copy is placeholder — details are updated as deployment evidence is approved.]"
+            subhead="Approach details are refined as deployment evidence is approved for publication."
           />
           <FeatureStack
             items={solution.approach.map((item) => ({
@@ -164,7 +164,7 @@ export default async function SolutionDetailPage({ params }: SolutionPageProps) 
           <SectionHeader
             eyebrow="Technology stack"
             title="Components that make it work"
-            subhead="[Stack items are indicative. Actual selections depend on project requirements.]"
+            subhead="Stack items are indicative — final selections depend on project requirements."
             size="compact"
           />
           <ul className="flex flex-wrap gap-3">
@@ -186,14 +186,13 @@ export default async function SolutionDetailPage({ params }: SolutionPageProps) 
             <CardBody className="grid grid-cols-1 gap-8 p-6 md:p-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
               <div>
                 <p className="font-mono text-[11px] tracking-[0.18em] text-cyan-400 uppercase">
-                  [CASE STUDY PLACEHOLDER]
+                  Case studies
                 </p>
                 <h2 className="text-steel-100 font-display mt-3 text-3xl font-semibold tracking-tight md:text-4xl">
-                  [A real {solution.name} deployment story]
+                  Real {solution.name} deployments will be published here
                 </h2>
                 <p className="text-steel-300 mt-4 max-w-2xl text-base">
-                  [A full deployment narrative — problem, approach, environment, outcome — will
-                  appear here once an approved case study is ready.]
+                  A full deployment narrative — problem, approach, environment, and measured outcome — will appear here once an approved case study is ready.
                 </p>
               </div>
               <div className="border-steel-700 relative aspect-video overflow-hidden rounded-lg border">
@@ -223,7 +222,7 @@ export default async function SolutionDetailPage({ params }: SolutionPageProps) 
             <SectionHeader
               eyebrow="Related products"
               title="Hardware paths for this solution"
-              subhead="[Product cards link to individual detail pages.]"
+              subhead="Product cards link to individual detail pages."
             />
             <FeatureGrid columns={3}>
               {relatedProducts.map((product) => (
@@ -246,7 +245,7 @@ export default async function SolutionDetailPage({ params }: SolutionPageProps) 
       <CtaBand
         eyebrow={solution.name}
         title={`Start with a ${solution.name} scoping session`}
-        subtitle="[Describe your site, constraints, and target outcome. We will map the right first practical step.]"
+        subtitle="Describe your site, constraints, and target outcome — we will map the right first practical step."
         primary={{ label: 'Request a quote', href: '/quote' }}
         secondary={{ label: 'Contact sales', href: '/contact' }}
       />

@@ -34,7 +34,16 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
   if (!ctx) redirect('/sign-in');
 
   const isAdmin = ADMIN_ROLES.some((role) => ctx.roles.includes(role));
-  if (!isAdmin) redirect('/');
+  if (!isAdmin) {
+    // D-082/D2 loop safety: on the production admin subdomain the root path
+    // `/` is a host-routed hop (see proxy.ts) that sends cookie-bearing
+    // visitors straight back to `/admin`. A relative redirect here would
+    // therefore bounce forever — always return non-admins to the canonical
+    // public site (NEXT_PUBLIC_SITE_URL) instead. In local development that
+    // resolves to `http://localhost:3000/` (same-origin homepage), matching
+    // the previous behaviour.
+    redirect(env.NEXT_PUBLIC_SITE_URL);
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: ctx.userId },

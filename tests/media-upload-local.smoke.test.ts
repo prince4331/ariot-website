@@ -24,6 +24,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import pg from 'pg';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 import { localUploadFromForm } from '../server/storage/local-upload.ts';
 import { LocalMediaStorageProvider } from '../server/storage/local-media-storage.ts';
 import { deleteOwnedKey, resolveKeyPath } from '../server/storage/local-storage-fs.ts';
@@ -71,7 +72,7 @@ function toBlobPart(bytes: Buffer): BlobPart {
 async function importPrisma() {
   const { PrismaClient } = await import('../lib/generated/prisma/client.ts');
   const { PrismaPg } = await import('@prisma/adapter-pg');
-  return new PrismaClient({ adapter: new PrismaPg({ connectionString: testUrl }) });
+  return new PrismaClient({ adapter: new PrismaPg(utcPoolConfig(testUrl)) });
 }
 
 async function createDb() {
@@ -137,7 +138,7 @@ async function seedSchema() {
 
 before(async () => {
   await createDb();
-  pool = new Pool({ connectionString: testUrl });
+  pool = new Pool(utcPoolConfig(testUrl));
   await seedSchema();
   persistPrisma = await importPrisma();
   tempRoot = mkdtempSync(join(tmpdir(), 'ariot-local-smoke-'));

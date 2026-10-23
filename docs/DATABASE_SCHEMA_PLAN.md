@@ -159,7 +159,7 @@ Indices: `slug` unique, `sku` unique, `categoryId`, `status`, `publishedAt`. FTS
 | optionValues | json | `{ color: 'black', voltage: '12V' }` — **free-form** key/value map (no option-group table); trimmed server-side (≤20 keys, key ≤40, value ≤100); combination uniqueness per product is **order-independent** via `optionCombinationKey` (sorted-key fingerprint, active only) |
 | priceMinor | bigint? | overrides product price if set; non-negative digits only |
 | currency | enum | inherits product if null (BDT/USD) |
-| stock | int | non-negative; plain field only (inventory movements tracked in `StockMovement`, Step 2.4.6) |
+| stock | int | **Physical on-hand; never negative (D-071).** Plain field only; inventory movements tracked in `StockMovement` (Step 2.4.6A3, D-075). `BACKORDER`/`MADE_TO_ORDER` are sellability policies, not negative-inventory permissions (D-076). With active variants, `ProductVariant.stock` is authoritative; `Product.stock` is display-only (D-072). All `DateTime` columns remain `timestamp(3) without time zone`; sessions forced UTC via `utcPoolConfig` (D-070, Step 2.4.6-0) — they are NOT converted to `timestamptz` in this step. |
 | barcode | string? | EAN/UPC |
 | isDefault | boolean | at most one active default per product; setting true clears the others |
 | createdAt, updatedAt, deletedAt | | archive = soft-delete (`deletedAt`); archived SKU stays reserved |
@@ -1034,20 +1034,28 @@ Blocks out specific dates/periods.
 | isPublic | bool | show on public calendar as "Unavailable" |
 | createdAt, updatedAt | | |
 
-### `StockMovement` (planned — Step 2.14.5)
+### `StockMovement` (implemented — Step 2.4.6A3, D-075; moved earlier from the older 2.14.5 timing)
+
+The authoritative, **append-only** inventory ledger. Every successful stock mutation in `adjust-inventory-executor.ts` writes exactly one `StockMovement` inside the same `FOR UPDATE` transaction as the `Product`/`ProductVariant` stock update and the `AuditLog` row (D-077). Distinct from `AuditLog`: `StockMovement` answers "what happened to the quantity" (ledger), `AuditLog` answers "who did what, when" (security/activity trail).
 
 | Field | Type | Notes |
 |---|---|---|
-| id | string | PK |
-| productId | string | FK Product |
-| variantId | string? | FK ProductVariant |
+| id | string | PK (`cuid()`) |
+| productId | string | Scalar FK reference to `Product` (no cascade; archiving a product keeps history) |
+| variantId | string? | Scalar FK reference to `ProductVariant` |
 | deltaQty | int | positive=add, negative=remove |
-| reason | enum | `SALE \| RETURN \| ADJUSTMENT \| IMPORT \| WRITE_OFF \| INITIAL` |
-| actorId | string? | FK User |
-| note | string? | |
-| createdAt | | |
+| quantityBefore | int | stock prior to the adjustment |
+| quantityAfter | int | stock after the adjustment |
+| reason | string | bounded; human/source label (manual adjustment requires `reason` + optional `note`) |
+| note | string? | bounded free-text |
+| referenceType | string? | reserved for future links (sale/return/import) |
+| referenceId | string? | reserved for future links |
+| createdAt | DateTime | `timestamp(3)` (UTC via `utcPoolConfig`, D-070) |
+| createdBy | string | `ctx.userId` from the executing admin; server-derived, never client-supplied |
 
-Indices: `productId`, `variantId`, `reason`, `createdAt`.
+Indices: `productId`, `variantId`, `createdAt`, `createdBy`.
+
+**Immutability (by design, D-075):** a PostgreSQL trigger (`stock_movement_immutable` → `deny_stock_movement_write`) raised in `prisma/migrations/20260829000100_add_stock_movement/migration.sql` rejects any `UPDATE` or `DELETE` on `StockMovement`. There is intentionally no delete/edit path.
 
 ### Planning notes
 

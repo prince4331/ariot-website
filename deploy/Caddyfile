@@ -1,0 +1,89 @@
+# ARIOT production reverse proxy — Caddy v2
+#
+# Caddy obtains and renews Let's Encrypt certificates automatically for
+# ariottech.com (HTTP-ALPN on :443 + redirect from :80). Certificates persist
+# in the caddy_data volume.
+#
+# The ARIOT Next.js app (web:3000) serves everything — pages, API, auth
+# callbacks (/api/auth/*), and uploaded media (/media/*). Uploaded media is
+# delivered by the app's /media route from the persistent MEDIA_LOCAL_ROOT
+# bind mount, so Caddy does not serve files from disk directly.
+
+{
+	# ACME registration contact (expiry notices). Injected by compose from
+	# CADDY_ACME_EMAIL in .env; the `:-admin@ariottech.com` default keeps the
+	# Caddyfile valid when the env var is absent (CI, `caddy validate`, bare
+	# `docker run`) — an unset bare {$VAR} would expand to an empty argument
+	# and fail to parse.
+	email {$CADDY_ACME_EMAIL:-admin@ariottech.com}
+}
+
+# Canonical domain: serve the site.
+ariottech.com {
+	encode zstd gzip
+
+	# Security headers (HSTS, CSP, XFO, nosniff, …) are set by the Next.js app
+	# on every response (see next.config.ts) — Caddy does not duplicate them.
+
+	# Admin-only surfaces live on the admin subdomain (D-082/D2). Redirect
+	# them there so a bookmarked /admin or /sign-in on the apex keeps working.
+	# 308 preserves the method + query string. Deliberately narrow: ONLY
+	# /admin* and /sign-in* — the rest of the public site is untouched, and
+	# /api/auth/* callbacks (served on the admin host) are not proxied here.
+	@admin_paths path /admin /admin/*
+	handle @admin_paths {
+		redir https://admin.ariottech.com{uri} permanent
+	}
+	@signin_paths path /sign-in /sign-in/*
+	handle @signin_paths {
+		redir https://admin.ariottech.com{uri} permanent
+	}
+
+	# Everything else on the apex is the public site.
+	handle {
+		# Preserve the original Host header so the app's host-based routing
+		# (proxy.ts) and Better Auth origin checks see ariottech.com rather
+		# than the internal `web:3000` upstream address.
+		reverse_proxy web:3000 {
+			header_up Host {http.request.host}
+		}
+	}
+}
+
+# www redirects to the canonical apex domain (308 preserves the method).
+www.ariottech.com {
+	redir https://ariottech.com{uri} permanent
+}
+
+# Admin dashboard subdomain (owner-confirmed): https://admin.ariottech.com
+#
+# SAME Next.js application, same PostgreSQL, same web container — this is
+# host routing only, never a second app instance. RBAC stays server-side in
+# the app (`app/(admin)/layout.tsx` + `requireRole`/`requirePermission`), so
+# exposing the host here grants nothing by itself.
+#
+# DNS prerequisite: an A/CNAME record for `admin` pointing at the same VPS
+# (deploy/README.md § 4) — otherwise certificate issuance for this host fails
+# and retries (the apex site keeps serving; each site gets its own cert).
+#
+# Authentication (D-082, implemented in D2): Better Auth's baseURL is
+# `https://admin.ariottech.com` (compose BETTER_AUTH_URL), so the Google
+# OAuth callback derived from it is
+# `https://admin.ariottech.com/api/auth/callback/google`, and
+# `https://admin.ariottech.com` is a trusted origin. Auth cookies are
+# host-only (no `cookieDomain`), the OAuth state cookie is host-only, and
+# the redirect URI is derived from baseURL — all of which now line up on
+# this host. No wildcard origins, no CSRF relaxation. RBAC stays server-side
+# in the app (`app/(admin)/layout.tsx` + `requireRole`/`requirePermission`),
+# so serving the host here grants nothing by itself.
+#
+# Host preservation matters: proxy.ts routes `/` (admin vs public) and the
+# apex → admin redirects by the Host header, so it must see the real
+# hostname.
+admin.ariottech.com {
+	encode zstd gzip
+
+	reverse_proxy web:3000 {
+		header_up Host {http.request.host}
+	}
+}

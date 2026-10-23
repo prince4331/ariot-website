@@ -12,42 +12,42 @@ import { defineMetadata } from '@/lib/seo/metadata';
 
 const MANUALS = [
   {
-    product: '[Autonomous floor-cleaning robot]',
+    product: 'Autonomous floor-cleaning robot',
     documents: [
-      { label: '[Datasheet v0.1 (PDF, size pending)]', href: '#' },
-      { label: '[Quick-start guide (PDF, size pending)]', href: '#' },
-      { label: '[Safety notice (PDF, size pending)]', href: '#' },
+      { label: 'Datasheet (PDF)' },
+      { label: 'Quick-start guide (PDF)' },
+      { label: 'Safety notice (PDF)' },
     ],
   },
   {
-    product: '[IoT home safety device]',
+    product: 'IoT home safety device',
     documents: [
-      { label: '[Datasheet v0.1 (PDF, size pending)]', href: '#' },
-      { label: '[Installation guide (PDF, size pending)]', href: '#' },
-      { label: '[Sensor replacement guide (PDF, size pending)]', href: '#' },
+      { label: 'Datasheet (PDF)' },
+      { label: 'Installation guide (PDF)' },
+      { label: 'Sensor replacement guide (PDF)' },
     ],
   },
   {
-    product: '[Smart appliance control]',
+    product: 'Smart appliance control',
     documents: [
-      { label: '[Datasheet v0.1 (PDF, size pending)]', href: '#' },
-      { label: '[Wiring guide (PDF, size pending)]', href: '#' },
+      { label: 'Datasheet (PDF)' },
+      { label: 'Wiring guide (PDF)' },
     ],
   },
   {
-    product: '[IoT gateway node]',
+    product: 'IoT gateway node',
     documents: [
-      { label: '[Deployment brief (PDF, size pending)]', href: '#' },
-      { label: '[Protocol sheet (PDF, size pending)]', href: '#' },
-      { label: '[Enclosure mounting guide (PDF, size pending)]', href: '#' },
+      { label: 'Deployment brief (PDF)' },
+      { label: 'Protocol sheet (PDF)' },
+      { label: 'Enclosure mounting guide (PDF)' },
     ],
   },
   {
-    product: '[Education robotics kit]',
+    product: 'Education robotics kit',
     documents: [
-      { label: '[Curriculum outline (PDF, size pending)]', href: '#' },
-      { label: '[Lab guide (PDF, size pending)]', href: '#' },
-      { label: '[Component reference (PDF, size pending)]', href: '#' },
+      { label: 'Curriculum outline (PDF)' },
+      { label: 'Lab guide (PDF)' },
+      { label: 'Component reference (PDF)' },
     ],
   },
 ] as const;
@@ -74,14 +74,14 @@ export default function ManualsPage() {
             />
             <div className="max-w-4xl">
               <p className="font-mono text-[12px] font-medium tracking-[0.18em] text-cyan-400 uppercase">
-                [SUPPORT / MANUALS]
+                Support · Manuals
               </p>
               <h1 className="text-steel-100 font-display mt-4 text-4xl leading-[1.04] font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl">
                 Manuals &amp; downloads
               </h1>
               <p className="text-steel-200 mt-5 max-w-2xl text-base sm:text-lg">
-                [Product datasheets, installation guides, quick-start cards, and safety notices. All
-                documents are placeholder links until production-ready PDFs are approved.]
+                Product datasheets, installation guides, quick-start cards, and safety notices.
+                Documents are published alongside each hardware release.
               </p>
             </div>
           </Container>
@@ -93,7 +93,7 @@ export default function ManualsPage() {
           <SectionHeader
             eyebrow="All products"
             title="Find your document"
-            subhead="[Documents are released alongside hardware. Placeholder items will become live download links.]"
+            subhead="Documents are released alongside their hardware. If you need one early, request it directly."
             size="compact"
           />
           <div className="flex flex-col gap-6">
@@ -110,15 +110,13 @@ export default function ManualsPage() {
                     {group.documents.map((doc) => (
                       <li key={doc.label}>
                         <Button
-                          asChild
                           variant="secondary"
                           size="sm"
+                          disabled
                           className="w-full justify-start sm:w-auto"
                         >
-                          <Link href={doc.href}>
-                            <Download className="h-4 w-4" />
-                            {doc.label}
-                          </Link>
+                          <Download className="h-4 w-4" />
+                          {doc.label}
                         </Button>
                       </li>
                     ))}
@@ -136,11 +134,11 @@ export default function ManualsPage() {
             <CardBody className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between md:p-8">
               <div>
                 <h2 className="text-steel-100 font-display text-2xl font-semibold tracking-tight">
-                  [Missing a document?]
+                  Missing a document?
                 </h2>
                 <p className="text-steel-300 mt-2 text-sm">
-                  [If a document for your product is not listed, contact the support team with the
-                  product name and serial number.]
+                  If a document for your product is not listed, contact the support team with the
+                  product name and serial number.
                 </p>
               </div>
               <Button asChild variant="primary">

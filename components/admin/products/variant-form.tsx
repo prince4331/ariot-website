@@ -232,15 +232,19 @@ export function VariantForm({ mode, initial, busy, onCancel, onSubmit }: Variant
             <option value="USD">USD</option>
           </select>
         </FormField>
-        <FormField label="Stock">
+        <FormField
+          label="Stock"
+          help="Stock is managed only in Inventory (Step 2.4.6A1). Variants start at 0."
+        >
           <input
             type="number"
             min={0}
             step={1}
             value={form.stock}
-            readOnly={readOnly}
+            disabled
+            readOnly
             onChange={(e) => update({ stock: e.target.value.replace(/[^0-9]/g, '') })}
-            className={formInputClass(readOnly)}
+            className={formInputClass(true)}
           />
         </FormField>
       </div>

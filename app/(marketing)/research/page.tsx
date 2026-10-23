@@ -13,6 +13,8 @@ import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { BreadcrumbList } from '@/components/seo/breadcrumb-list';
 import { defineMetadata } from '@/lib/seo/metadata';
+import { blogCategoryIcon } from '@/components/marketing/blog-category-icon';
+import { safeGetPublishedPostsByCategory } from '@/server/public/blog';
 
 const researchAreas = [
   {
@@ -64,7 +66,11 @@ export const metadata: Metadata = defineMetadata({
   path: '/research',
 });
 
-export default function ResearchPage() {
+export default async function ResearchPage() {
+  // TASK 10 — Research page: recent published engineering notes. The static
+  // core page remains; the section is omitted when nothing is published yet.
+  const researchNotes = await safeGetPublishedPostsByCategory('engineering-notes', 3);
+
   return (
     <>
       <BreadcrumbList
@@ -188,6 +194,35 @@ export default function ResearchPage() {
           </div>
         </Container>
       </Section>
+
+      {/* Recent engineering notes (DB-backed) */}
+      {researchNotes.length > 0 && (
+        <Section bg="raised" spacing="default">
+          <Container className="flex flex-col gap-12">
+            <SectionHeader
+              eyebrow="Field notes"
+              title="Recent engineering notes"
+              subhead="Published findings and build decisions from ongoing R&D work."
+            />
+            <FeatureGrid columns={3}>
+              {researchNotes.map((post) => {
+                const Icon = blogCategoryIcon(post.categorySlug);
+                return (
+                  <FeatureCard
+                    key={post.slug}
+                    icon={Icon}
+                    eyebrow={`${post.categoryName} · ${post.readingTimeMinutes} min`}
+                    title={post.title}
+                    description={post.excerpt ?? ''}
+                    href={`/blog/${post.slug}`}
+                    cta="Read note"
+                  />
+                );
+              })}
+            </FeatureGrid>
+          </Container>
+        </Section>
+      )}
 
       <CtaBand
         eyebrow="Collaborate"

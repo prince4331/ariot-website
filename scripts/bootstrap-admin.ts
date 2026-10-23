@@ -31,6 +31,7 @@ import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import pg from 'pg';
 import { z } from 'zod';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 
 const { Pool } = pg;
 
@@ -125,8 +126,9 @@ async function main(): Promise<void> {
   }
   if (!localDb) console.log('  DB           : NON-LOCAL (--production acknowledged)');
 
-  // Connect
-  const pool = new Pool({ connectionString: DATABASE_URL });
+  // Connect — UTC session per D-070 (server/db-timezone.ts), so the AuditLog
+  // row this script writes lands on the same instant scale as the application.
+  const pool = new Pool(utcPoolConfig(DATABASE_URL));
 
   try {
     const client = await pool.connect();

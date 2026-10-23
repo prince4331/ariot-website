@@ -21,7 +21,7 @@ interface ProductProps {
   image?: string;
   /** Brand name. Defaults to ARIOT. */
   brand?: string;
-  /** GTIN (EAN/UPC). Use [BRACKETED] placeholder if pending. */
+  /** GTIN (EAN/UPC). Optional — omit until a real GTIN exists. */
   gtin?: string;
   /** Product SKU. */
   sku?: string;

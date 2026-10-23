@@ -594,6 +594,37 @@ model AuditLog {
   @@index([createdAt])
 }
 
+/// Immutable stock movement ledger — Step 2.4.6A3 (D-075).
+///
+/// Operational inventory history: every successful stock adjustment writes one
+/// StockMovement row capturing the quantity delta and the before/after state.
+/// This is deliberately SEPARATE from AuditLog, which tracks security/admin
+/// activity (who did what), not inventory quantity history.
+///
+/// Immutability: records are append-only. `productId` / `variantId` are stored
+/// as scalar strings (no FK cascade) so archiving/deleting a product never
+/// removes its movement history. The migration installs a BEFORE UPDATE OR
+/// DELETE trigger that rejects any mutation of a StockMovement row.
+model StockMovement {
+  id             String   @id @default(cuid())
+  productId      String
+  variantId      String?
+  deltaQty       Int
+  quantityBefore Int
+  quantityAfter  Int
+  reason         String
+  note           String?
+  referenceType  String?
+  referenceId    String?
+  createdAt      DateTime @default(now())
+  createdBy      String
+
+  @@index([productId])
+  @@index([variantId])
+  @@index([createdAt])
+  @@index([createdBy])
+}
+
 /// Admin-editable site-level configuration.
 model SystemSetting {
   key       String   @id

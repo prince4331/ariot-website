@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   if (!category) {
     return defineMetadata({
       title: 'Category not found',
-      description: '[The requested product category could not be found.]',
+      description: 'The requested product category could not be found.',
       path: `/products/category/${slug}`,
       noindex: true,
     });
@@ -90,7 +90,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <SectionHeader
             eyebrow={`${displayProducts.length} product${displayProducts.length !== 1 ? 's' : ''}`}
             title={`${category.name} hardware`}
-            subhead="[Product cards are placeholder content. Pricing, stock, and final specs land once production decisions are approved.]"
+            subhead="Status labels reflect the real development stage of each product. Pricing and final specifications are confirmed at quote."
           />
           <FeatureGrid columns={3}>
             {displayProducts.map((product) => (
@@ -112,7 +112,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <CtaBand
         eyebrow="Custom category"
         title="Need a specific variant or configuration?"
-        subtitle="[Describe the environment, operating conditions, and target outcome. We'll scope the right hardware path.]"
+        subtitle="Describe the environment, operating conditions, and target outcome — we will scope the right hardware path."
         primary={{ label: 'Request a quote', href: '/quote' }}
         secondary={{ label: 'Browse all products', href: '/products' }}
       />

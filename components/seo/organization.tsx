@@ -20,6 +20,15 @@ export function Organization({
   url = siteConfig.url,
   logo,
 }: OrganizationProps) {
+  // Only emit contact details that are real — placeholder/empty values are
+  // filtered so structured data never carries pending config values.
+  const email = siteConfig.contact.email && !siteConfig.contact.email.startsWith('[')
+    ? siteConfig.contact.email
+    : undefined;
+  const phone = siteConfig.contact.phone && !siteConfig.contact.phone.startsWith('[')
+    ? siteConfig.contact.phone
+    : undefined;
+
   return (
     <JsonLd
       data={{
@@ -32,13 +41,17 @@ export function Organization({
           siteConfig.social.linkedin,
           siteConfig.social.github,
           siteConfig.social.twitter,
-        ].filter((v) => v && !v.startsWith('[')),
-        contactPoint: {
-          '@type': 'ContactPoint',
-          email: siteConfig.contact.email,
-          telephone: siteConfig.contact.phone,
-          contactType: 'customer service',
-        },
+        ].filter((v) => v.length > 0),
+        ...(email || phone
+          ? {
+              contactPoint: {
+                '@type': 'ContactPoint',
+                ...(email ? { email } : {}),
+                ...(phone ? { telephone: phone } : {}),
+                contactType: 'customer service',
+              },
+            }
+          : {}),
         address: {
           '@type': 'PostalAddress',
           addressCountry: siteConfig.contact.address.country,

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-import { BLOG_POSTS } from '@/features/blog/_data';
+import { listPublishedPosts } from '@/server/public/blog';
 import { SOLUTIONS } from '@/features/solutions/_data';
 import { SUPPORT_ARTICLES } from '@/features/support/_data';
 import { PRODUCTS, CATEGORIES } from '@/app/(marketing)/products/_data';
@@ -35,13 +35,23 @@ function solutionEntries(): MetadataRoute.Sitemap {
   }));
 }
 
-function blogEntries(): MetadataRoute.Sitemap {
-  return BLOG_POSTS.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
+/**
+ * DB-backed blog entries (L3). Only PUBLISHED posts are listed — the public
+ * query layer enforces the visibility contract. Falls back to no blog entries
+ * when the database is unreachable so the sitemap still renders.
+ */
+async function blogEntries(): Promise<MetadataRoute.Sitemap> {
+  try {
+    const posts = await listPublishedPosts({ limit: 50 });
+    return posts.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: post.publishedAt ? new Date(post.publishedAt) : new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 function supportArticleEntries(): MetadataRoute.Sitemap {
@@ -53,7 +63,7 @@ function supportArticleEntries(): MetadataRoute.Sitemap {
   }));
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -66,6 +76,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/robotics`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/solutions`,
@@ -140,7 +156,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.2,
     },
     {
-      url: `${baseUrl}/legal/shipping-returns`,
+      url: `${baseUrl}/legal/shipping`,
       lastModified: new Date(),
       changeFrequency: 'yearly',
       priority: 0.2,
@@ -152,7 +168,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...productEntries(),
     ...categoryEntries(),
     ...solutionEntries(),
-    ...blogEntries(),
+    ...(await blogEntries()),
     ...supportArticleEntries(),
   ];
 }

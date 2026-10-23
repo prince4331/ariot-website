@@ -84,7 +84,9 @@ export async function createProductVariantWithContext(
           optionValues: data.optionValues,
           priceMinor: data.priceMinor != null ? BigInt(data.priceMinor) : null,
           currency: data.currency,
-          stock: data.stock,
+          // Stock is initialized to zero here; it is subsequently changed ONLY
+          // through the Inventory module (Step 2.4.6A1, D-073).
+          stock: 0,
           barcode: data.barcode,
           isDefault: data.isDefault,
         },
@@ -111,7 +113,6 @@ export async function createProductVariantWithContext(
             'optionValues',
             'priceMinor',
             'currency',
-            'stock',
             'barcode',
             'isDefault',
           ]),

@@ -14,6 +14,7 @@ import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import pg from 'pg';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 
 const { Pool, Client } = pg;
 
@@ -247,7 +248,7 @@ async function clearHeroImage(
 
 before(async () => {
   await createDb();
-  pool = new Pool({ connectionString: testUrl });
+  pool = new Pool(utcPoolConfig(testUrl));
   await seedSchema();
   await seedData();
 });

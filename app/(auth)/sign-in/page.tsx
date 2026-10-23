@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { env } from '@/server/env';
+import { isGoogleProviderEnabled } from '@/server/auth/google-provider';
 import { SignInForm } from './sign-in-form';
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default async function SignInPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
-  const providerEnabled = Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
+  const providerEnabled = isGoogleProviderEnabled(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET);
   const initialError = error ? (SAFE_ERRORS[error] ?? SAFE_ERRORS.default) : null;
 
   return (

@@ -17,6 +17,8 @@
     "prepare": "husky",
     "admin:bootstrap": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/bootstrap-admin.ts",
     "permissions:reconcile": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/reconcile-role-permissions.ts",
+    "db:timezone": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/set-database-timezone-utc.ts",
+    "test:timezone": "node --import ./tests/helpers/register-hooks.mjs --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/db-timezone-config.test.ts tests/database-timezone.test.ts",
     "test:permissions": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/permission-evaluator.test.ts",
     "test:product-details": "node --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test tests/product-details-validation.test.ts"
   },
@@ -47,6 +49,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "^7.73.1",
+    "react-markdown": "^10.1.0",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "resend": "^6.16.0",

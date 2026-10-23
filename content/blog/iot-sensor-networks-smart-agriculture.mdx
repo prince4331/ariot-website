@@ -22,27 +22,26 @@ Our calibration approach:
    saturated soil (wet reference) at the installation site.
 2. **Salinity correction** — saline soils read artificially high on capacitive sensors. We use a
    correction factor derived from a conductivity measurement.
-3. **Depth consistency** — burial depth variation of ±2 cm changes readings by [X%]. We fix
+3. **Depth consistency** — burial depth variation of ±2 cm measurably shifts readings. We fix
    depth with a mechanical guide and verify with a gauge before sealing the access point.
 
-[Calibration procedure, correction formula, and acceptable tolerance range pending agronomist review.]
+The calibration procedure, correction formula, and tolerance range are under agronomist review and will be published with the deployment guide.
 
 ## Solar harvesting for node autonomy
 
 A node that a farmer has to charge manually is a node that stops working within a month.
 
-Our design target: full autonomy for [N] days with zero charging intervention, including [M] overcast
-days during monsoon season.
+Our design target is full autonomy through consecutive overcast days during monsoon season, with zero manual charging.
 
 Key decisions:
 
-- **Panel sizing** — [W] peak at [tilt angle], chosen for [rationale].
-- **Battery capacity** — [Ah] lithium cell, chosen to survive [cloud cover days] without sunlight.
-- **MPPT algorithm** — [algorithm type], implemented on [MCU] to maximise harvest at low irradiance.
+- **Panel sizing** — matched to the node daily energy budget and its mounting geometry.
+- **Battery capacity** — a lithium pack sized to survive consecutive overcast days without sunlight.
+- **MPPT firmware** — tuned on the node microcontroller to maximise harvest at low irradiance.
 - **Low-power mode** — node enters deep sleep between telemetry windows, waking only for scheduled
   readings and alert checks.
 
-[Final specs, MPPT implementation, and power budget pending hardware validation.]
+Final specifications and the full power budget will be published once hardware validation completes.
 
 ## Alerts, not dashboards
 
@@ -50,12 +49,12 @@ Farmers do not want to read sensor graphs. They want to know when to irrigate an
 
 We built a threshold-rule system for the first version:
 
-- **Low-moisture alert**: triggered when soil moisture drops below [X%] for [Y] consecutive readings.
-- **Waterlogging alert**: triggered when moisture exceeds [Z%] for [W] hours.
-- **Delivery path**: SMS via [gateway] for areas with no smartphone penetration. App notification
+- **Low-moisture alert**: triggered when soil moisture stays below a calibrated threshold for consecutive readings.
+- **Waterlogging alert**: triggered when moisture stays above a calibrated threshold for a sustained period.
+- **Delivery path**: SMS via a regional gateway for areas with limited smartphone access. App notification
   for users with smartphones and data.
 
 The lesson: alert fatigue is as dangerous as no alerting. Our thresholds are conservative on the first
 deployment and tightened based on operator feedback after two weeks of observation.
 
-[Threshold values, SMS gateway integration, and app notification flow pending pilot review.]
+Threshold values and delivery integrations are being tuned during pilot review and will be documented with each deployment.

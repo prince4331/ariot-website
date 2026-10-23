@@ -1,4 +1,5 @@
 import { sendEmail } from '../client';
+import { resolveMailFrom } from '../routing';
 import { siteConfig } from '@/lib/seo/site';
 
 /* ---------------------------------------------------------------------------
@@ -131,7 +132,9 @@ export async function sendNewsletterWelcome(
   email: string,
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   return sendEmail({
-    from: `ARIOT <noreply@ariot.example>`,
+    // Env-driven sender (D2 / I-031): MAIL_FROM must sit on a Resend-
+    // verified domain. The recipient is the subscriber.
+    from: resolveMailFrom(),
     to: email,
     subject: `Welcome to the ARIOT newsletter`,
     html: buildNewsletterWelcomeHtml(email),

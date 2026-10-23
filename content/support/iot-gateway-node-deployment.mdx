@@ -24,8 +24,7 @@ be oriented toward an open window. Avoid mounting:
 - Inside a metal cabinet or meter box
 - Adjacent to large metal HVAC or conduit runs
 
-**Fasteners**: use M6 stainless bolts with nylon washers. The mounting plate is pre-drilled at
-[hole pattern pending]. Torque to [Nm pending]. Do not over-tighten — the ABS body will crack.
+**Fasteners**: use M6 stainless bolts with nylon washers. The mounting plate is pre-drilled — match the bolt pattern and torque to the figures printed on the plate label. Do not over-tighten — the ABS body will crack.
 
 ## SIM and connectivity configuration
 
@@ -71,16 +70,16 @@ check SIM seating and signal strength.
 
 After the unit is online, connect to the provisioning access point to configure the cloud endpoint:
 
-1. On a phone or laptop, connect to the Wi-Fi SSID: `ARIOT-NODE-[SERIAL]` using the default
+1. On a phone or laptop, connect to the Wi-Fi SSID: `ARIOT-NODE-<serial>` using the default
    password printed on the label inside the lid.
 2. Open a browser and navigate to `192.168.4.1`.
 3. Navigate to **Settings → Cloud → MQTT**.
 4. Enter:
-   - **Broker**: `[BROKER ADDRESS PENDING]`
-   - **Port**: `[PORT PENDING]` (TLS recommended)
-   - **Username**: `[CREDENTIAL FORMAT PENDING]`
+   - **Broker**: the endpoint provided in your provisioning portal
+   - **Port**: as specified in the provisioning portal (TLS recommended)
+   - **Username**: the credential issued with your provisioning pack
    - **Password**: from the provisioning portal
-   - **Topic prefix**: `[FORMAT PENDING]/[SERIAL]/`
+   - **Topic prefix**: the prefix assigned to your deployment
 5. Tap **Save and restart**. The node will reboot and connect to the broker within 30 seconds.
 6. Verify by checking the broker topic in the monitoring dashboard — you should see a heartbeat
    message within 60 seconds of restart.

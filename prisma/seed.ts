@@ -58,6 +58,7 @@ const roles = [
       'media.write',
       'products.read',
       'products.write',
+      'inventory.read',
       'support_article.read',
       'support_article.write',
     ],
@@ -90,6 +91,7 @@ const roles = [
       'order.refund',
       'order.transition',
       'products.read',
+      'inventory.read',
       'quote.read',
       'quote.respond',
       'ticket.read',
@@ -358,16 +360,30 @@ function mdx(path: string): string {
   return readFileSync(join(root, ...path.split('/')), 'utf8');
 }
 
+/** File mtime (ms since epoch) — honest, deterministic launch publication date. */
+function fileMtimeIso(path: string): string {
+  return statSync(join(root, ...path.split('/'))).mtime.toISOString();
+}
+
 const statements: string[] = ['BEGIN;'];
+
+// ─── Insert-only policy (D1 production seed safety) ─────────────────────────
+// Every content row below uses `ON CONFLICT ... DO NOTHING` — the seed is an
+// INITIAL bootstrap only. Once an administrator can edit content (blog posts,
+// products, categories, roles, media metadata), a rerun of the seed must never
+// overwrite their edits or force re-publication (the previous upsert reset
+// BlogPost rows to PUBLISHED and clobbered admin-edited titles/bodies).
+// System bookkeeping (SystemSetting seed marker) may still update in place.
+// Regression coverage: tests/seed-safety.test.ts.
 
 for (const role of roles) {
   statements.push(
-    `INSERT INTO "Role" ("id","key","name","permissions","createdAt","updatedAt") VALUES (${sql(role.id)}, '${role.key}', ${sql(role.name)}, ${json(role.permissions)}, NOW(), NOW()) ON CONFLICT ("key") DO UPDATE SET "name" = EXCLUDED."name", "permissions" = EXCLUDED."permissions", "updatedAt" = NOW();`,
+    `INSERT INTO "Role" ("id","key","name","permissions","createdAt","updatedAt") VALUES (${sql(role.id)}, '${role.key}', ${sql(role.name)}, ${json(role.permissions)}, NOW(), NOW()) ON CONFLICT ("key") DO NOTHING;`,
   );
 }
 
 statements.push(
-  `INSERT INTO "User" ("id","email","name","locale","preferredCurrency","status","createdAt","updatedAt") VALUES ('user_admin_seed', 'admin@ariot.local', '[ARIOT Admin Placeholder]', 'en', 'BDT', 'ACTIVE', NOW(), NOW()) ON CONFLICT ("email") DO UPDATE SET "name" = EXCLUDED."name", "updatedAt" = NOW();`,
+  `INSERT INTO "User" ("id","email","name","locale","preferredCurrency","status","createdAt","updatedAt") VALUES ('user_admin_seed', 'admin@ariot.local', '[ARIOT Admin Placeholder]', 'en', 'BDT', 'ACTIVE', NOW(), NOW()) ON CONFLICT ("email") DO NOTHING;`,
 );
 statements.push(
   `INSERT INTO "UserRole" ("userId","roleId") VALUES ('user_admin_seed','role_super_admin') ON CONFLICT ("userId","roleId") DO NOTHING;`,
@@ -375,31 +391,38 @@ statements.push(
 
 for (const [id, slug, name, description] of categories) {
   statements.push(
-    `INSERT INTO "Category" ("id","slug","name","description","isPublished","createdAt","updatedAt") VALUES (${sql(id)}, ${sql(slug)}, ${sql(name)}, ${sql(description)}, true, NOW(), NOW()) ON CONFLICT ("slug") DO UPDATE SET "name" = EXCLUDED."name", "description" = EXCLUDED."description", "isPublished" = true, "updatedAt" = NOW();`,
+    `INSERT INTO "Category" ("id","slug","name","description","isPublished","createdAt","updatedAt") VALUES (${sql(id)}, ${sql(slug)}, ${sql(name)}, ${sql(description)}, true, NOW(), NOW()) ON CONFLICT ("slug") DO NOTHING;`,
   );
 }
 
 for (const [id, slug, name, description] of blogCategories) {
   statements.push(
-    `INSERT INTO "BlogCategory" ("id","slug","name","description","isPublished","createdAt","updatedAt") VALUES (${sql(id)}, ${sql(slug)}, ${sql(name)}, ${sql(description)}, true, NOW(), NOW()) ON CONFLICT ("slug") DO UPDATE SET "name" = EXCLUDED."name", "description" = EXCLUDED."description", "isPublished" = true, "updatedAt" = NOW();`,
+    `INSERT INTO "BlogCategory" ("id","slug","name","description","isPublished","createdAt","updatedAt") VALUES (${sql(id)}, ${sql(slug)}, ${sql(name)}, ${sql(description)}, true, NOW(), NOW()) ON CONFLICT ("slug") DO NOTHING;`,
   );
 }
 
 for (const item of [...products, ...blogs]) {
   statements.push(
-    `INSERT INTO "MediaAsset" ("id","kind","mime","sizeBytes","storageKey","cdnUrl","variants","altText","folder","tags","isPublic","createdAt","updatedAt") VALUES (${sql(item.mediaId)}, 'IMAGE', 'image/svg+xml', ${mediaSize(item.mediaPath)}, ${sql(item.mediaPath)}, ${sql(`/${item.mediaPath}`)}, '[]'::jsonb, ${sql('name' in item ? item.name : item.title)}, ${sql(item.mediaPath.split('/').slice(0, 2).join('/'))}, '[]'::jsonb, true, NOW(), NOW()) ON CONFLICT ("id") DO UPDATE SET "sizeBytes" = EXCLUDED."sizeBytes", "storageKey" = EXCLUDED."storageKey", "cdnUrl" = EXCLUDED."cdnUrl", "altText" = EXCLUDED."altText", "updatedAt" = NOW();`,
+    `INSERT INTO "MediaAsset" ("id","kind","mime","sizeBytes","storageKey","cdnUrl","variants","altText","folder","tags","isPublic","createdAt","updatedAt") VALUES (${sql(item.mediaId)}, 'IMAGE', 'image/svg+xml', ${mediaSize(item.mediaPath)}, ${sql(item.mediaPath)}, ${sql(`/${item.mediaPath}`)}, '[]'::jsonb, ${sql('name' in item ? item.name : item.title)}, ${sql(item.mediaPath.split('/').slice(0, 2).join('/'))}, '[]'::jsonb, true, NOW(), NOW()) ON CONFLICT ("id") DO NOTHING;`,
   );
 }
 
 for (const product of products) {
   statements.push(
-    `INSERT INTO "Product" ("id","slug","name","tagline","description","categoryId","sku","salesType","currency","stock","stockPolicy","status","heroImageId","specs","highlights","inTheBox","createdAt","updatedAt") VALUES (${sql(product.id)}, ${sql(product.slug)}, ${sql(product.name)}, ${sql(product.tagline)}, ${sql(product.description)}, ${sql(product.categoryId)}, ${sql(product.sku)}, '${product.salesType}', 'BDT', 0, 'MADE_TO_ORDER', 'DRAFT', ${sql(product.mediaId)}, ${json({ status: product.statusNote, chips: product.chips, groups: product.specs })}, ${json(product.highlights)}, ${json(product.downloads)}, NOW(), NOW()) ON CONFLICT ("slug") DO UPDATE SET "name" = EXCLUDED."name", "tagline" = EXCLUDED."tagline", "description" = EXCLUDED."description", "categoryId" = EXCLUDED."categoryId", "heroImageId" = EXCLUDED."heroImageId", "specs" = EXCLUDED."specs", "highlights" = EXCLUDED."highlights", "inTheBox" = EXCLUDED."inTheBox", "updatedAt" = NOW();`,
+    `INSERT INTO "Product" ("id","slug","name","tagline","description","categoryId","sku","salesType","currency","stock","stockPolicy","status","heroImageId","specs","highlights","inTheBox","createdAt","updatedAt") VALUES (${sql(product.id)}, ${sql(product.slug)}, ${sql(product.name)}, ${sql(product.tagline)}, ${sql(product.description)}, ${sql(product.categoryId)}, ${sql(product.sku)}, '${product.salesType}', 'BDT', 0, 'MADE_TO_ORDER', 'DRAFT', ${sql(product.mediaId)}, ${json({ status: product.statusNote, chips: product.chips, groups: product.specs })}, ${json(product.highlights)}, ${json(product.downloads)}, NOW(), NOW()) ON CONFLICT ("slug") DO NOTHING;`,
   );
 }
 
 for (const blog of blogs) {
+  // L3 launch: seed posts PUBLISHED with the source MDX file's mtime as the
+  // honest publication date. No fabricated "now()" — we use the real file
+  // timestamp so seeded content reflects when the article was actually
+  // authored. Admin can unpublish/edit from /admin/blog after seed. Insert-only
+  // (DO NOTHING): a rerun never touches an existing post, so admin edits and
+  // unpublish decisions survive.
+  const publishedAt = fileMtimeIso(blog.bodyPath);
   statements.push(
-    `INSERT INTO "BlogPost" ("id","slug","title","excerpt","body","categoryId","tags","coverImageId","authorId","readingTimeMinutes","status","isLab","createdAt","updatedAt") VALUES (${sql(blog.id)}, ${sql(blog.slug)}, ${sql(blog.title)}, ${sql(blog.excerpt)}, ${sql(mdx(blog.bodyPath))}, ${sql(blog.categoryId)}, ${json(blog.tags)}, ${sql(blog.mediaId)}, 'user_admin_seed', ${blog.readingTimeMinutes}, 'DRAFT', false, NOW(), NOW()) ON CONFLICT ("slug") DO UPDATE SET "title" = EXCLUDED."title", "excerpt" = EXCLUDED."excerpt", "body" = EXCLUDED."body", "categoryId" = EXCLUDED."categoryId", "tags" = EXCLUDED."tags", "coverImageId" = EXCLUDED."coverImageId", "authorId" = EXCLUDED."authorId", "readingTimeMinutes" = EXCLUDED."readingTimeMinutes", "updatedAt" = NOW();`,
+    `INSERT INTO "BlogPost" ("id","slug","title","excerpt","body","categoryId","tags","coverImageId","authorId","readingTimeMinutes","status","isLab","publishedAt","createdAt","updatedAt") VALUES (${sql(blog.id)}, ${sql(blog.slug)}, ${sql(blog.title)}, ${sql(blog.excerpt)}, ${sql(mdx(blog.bodyPath))}, ${sql(blog.categoryId)}, ${json(blog.tags)}, ${sql(blog.mediaId)}, 'user_admin_seed', ${blog.readingTimeMinutes}, 'PUBLISHED', false, ${sql(publishedAt)}::timestamptz, ${sql(publishedAt)}::timestamptz, NOW()) ON CONFLICT ("slug") DO NOTHING;`,
   );
 }
 

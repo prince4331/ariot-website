@@ -1,4 +1,5 @@
 import { sendEmail } from '../client';
+import { resolveContactInbox, resolveMailFrom } from '../routing';
 import { siteConfig } from '@/lib/seo/site';
 import type { ContactInput } from '@/lib/validators/contact';
 
@@ -125,8 +126,11 @@ export async function sendContactNotification(
   data: ContactInput,
 ): Promise<{ success: boolean; id?: string; error?: string }> {
   return sendEmail({
-    from: `ARIOT Contact <noreply@ariot.example>`,
-    to: siteConfig.contact.email,
+    // Env-driven routing (D2 / I-031): MAIL_FROM must sit on a Resend-
+    // verified domain; MAIL_TO is the owner-approved inbox. Throws in
+    // production when unconfigured — never a fake success.
+    from: resolveMailFrom(),
+    to: resolveContactInbox(),
     replyTo: data.email,
     subject: `[Contact] ${capitalizeFirst(data.topic)} — ${data.name}`,
     html: buildContactHtml(data),

@@ -19,7 +19,7 @@ chamber and affect long-term accuracy.
 
 **Procedure:**
 
-1. Hold the test canister [X cm] below the device, with the nozzle pointing upward toward the
+1. Hold the test canister a short distance below the device, with the nozzle pointing upward toward the
    smoke inlet.
 2. Spray a 2-second burst.
 3. The alarm should activate within **10 seconds**.
@@ -33,13 +33,12 @@ Allow 5 minutes for the sensor to reset before running another test.
 
 ## Gas sensor test
 
-The gas sensor detects combustible gases (LPG, methane) and carbon monoxide at [concentration
-thresholds pending]. Use a purpose-made gas test spray for this test. **Do not use an open lighter
+The gas sensor detects combustible gases (LPG, methane) and carbon monoxide at calibrated concentration thresholds. Use a purpose-made gas test spray for this test. **Do not use an open lighter
 or match** — this is a fire hazard and will not produce a controlled, reproducible test.
 
 **Procedure:**
 
-1. Hold the test spray [Y cm] from the device, directed at the gas inlet vent.
+1. Hold the test spray a short distance from the device, directed at the gas inlet vent.
 2. Spray a 1-second burst.
 3. The gas alarm LED (red) and siren should activate within **5 seconds**.
 
@@ -56,7 +55,7 @@ After triggering either alarm, verify that the companion app received a push not
 **Expected behaviour:**
 
 1. Alarm triggers on device.
-2. Device sends alert to cloud within [N seconds].
+2. Device sends the alert to the cloud as soon as connectivity allows.
 3. App receives push notification within 60 seconds of the alarm trigger.
 
 **If notification does not arrive within 60 seconds, check:**
@@ -65,7 +64,7 @@ After triggering either alarm, verify that the companion app received a push not
 - App notifications for the ARIOT app are **not muted** in your phone's notification settings.
 - The app is not in a suspended background state (some Android manufacturers aggressively kill
   background apps — check your phone's battery optimisation settings).
-- The backend notification service is not in a scheduled maintenance window ([status page pending]).
+- The backend notification service is not in a scheduled maintenance window (announced via the support hub).
 
 If the device is online and notifications are enabled but not arriving, contact support with the
 device serial number and the approximate time of the failed test.

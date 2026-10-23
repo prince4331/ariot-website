@@ -16,6 +16,7 @@ import { strict as assert } from 'node:assert';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import pg from 'pg';
+import { utcPoolConfig } from '../server/db-timezone.ts';
 import { updateProductDetailsRequestSchema } from '../server/admin/products/product-details-schema.ts';
 
 const { Pool, Client } = pg;
@@ -240,7 +241,7 @@ async function updateProduct(
 
 before(async () => {
   await createDisposableDb();
-  pool = new Pool({ connectionString: testUrl });
+  pool = new Pool(utcPoolConfig(testUrl));
   await seedSchema();
   // Seed test user for AuditLog FK
   await pool.query(`INSERT INTO "User" (id, email, name, locale, "preferredCurrency", status, "createdAt", "updatedAt")

@@ -1,0 +1,36 @@
+# VCS + CI
+.git
+.github
+.husky
+.openclaude
+
+# Dependencies & build output (recreated inside the image)
+node_modules
+.next
+out
+build
+coverage
+
+# Env files — never bake credentials into the image
+.env
+.env.*
+!.env.example
+
+# Local/tooling artifacts
+.aider*
+.nvmrc
+.prettierignore
+.prettierrc
+*.tsbuildinfo
+next-env.d.ts
+z.txt
+*.log
+npm-debug.log*
+
+# Not needed inside the app image (deploy context stays on the host)
+docs
+tests
+deploy
+
+# Generated Prisma client (regenerated during build via `prisma generate`)
+lib/generated

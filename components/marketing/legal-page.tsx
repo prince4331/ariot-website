@@ -9,18 +9,19 @@ interface LegalSection {
 
 interface LegalPageProps {
   title: string;
-  lastUpdated: string;
+  /** Document status line, e.g. "Pre-commercial draft — pending legal review". */
+  status: string;
   sections: ReadonlyArray<LegalSection>;
 }
 
 /**
  * LegalPage — shared prose chrome for all legal/* pages.
  *
- * Renders a page title, last-updated line, and a series of heading/body
- * section pairs. All content is provided as [BRACKETED_PLACEHOLDERS] until
- * legal review is complete.
+ * Renders a page title, a document-status line, and a series of
+ * heading/body section pairs. Copy reflects ARIOT's pre-commercial stage
+ * and is reviewed by qualified legal counsel before commercial launch.
  */
-export function LegalPage({ title, lastUpdated, sections }: LegalPageProps) {
+export function LegalPage({ title, status, sections }: LegalPageProps) {
   return (
     <Section bg="base" spacing="default">
       <Container>
@@ -30,7 +31,7 @@ export function LegalPage({ title, lastUpdated, sections }: LegalPageProps) {
               {title}
             </h1>
             <p className="text-steel-400 font-mono text-[11px] tracking-[0.14em] uppercase">
-              Last updated: {lastUpdated}
+              Document status: {status}
             </p>
           </header>
 
@@ -50,8 +51,8 @@ export function LegalPage({ title, lastUpdated, sections }: LegalPageProps) {
           <Separator className="my-10" />
 
           <p className="text-steel-500 font-mono text-[11px] tracking-[0.14em]">
-            [This document is a pre-commercial placeholder. ARIOT will replace all bracketed content
-            with legally reviewed text before commercial operations begin.]
+            This document reflects ARIOT&apos;s pre-commercial stage. Final legally reviewed text
+            will replace this draft before commercial operations begin.
           </p>
         </article>
       </Container>

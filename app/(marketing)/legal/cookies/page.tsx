@@ -12,15 +12,15 @@ export default function CookiePolicyPage() {
   return (
     <LegalPage
       title="Cookie policy"
-      lastUpdated="[DATE PENDING — awaiting legal review]"
+      status="Pre-commercial draft — pending legal review"
       sections={[
         {
           heading: 'What are cookies?',
-          body: '[Cookies are small text files stored on your device when you visit a website. They are used to remember preferences, enable site functionality, and collect analytics data. This policy explains how ARIOT uses cookies on its website.]',
+          body: 'Cookies are small text files stored on your device when you visit a website. They are used to remember preferences, enable site functionality, and collect analytics data. This policy explains how ARIOT uses cookies on its website.',
         },
         {
           heading: 'Cookies we use',
-          body: '[Essential cookies: required for the site to function (session management, security tokens). These cannot be disabled. Analytics cookies: used to understand how visitors interact with the site (page views, session duration, traffic sources). We use [ANALYTICS PROVIDER PENDING] with aggregated data only. No personally identifiable analytics tracking without consent.]',
+          body: 'Essential cookies: required for the site to function (session management, security tokens). These cannot be disabled. Analytics cookies: used to understand how visitors interact with the site (page views, session duration, traffic sources). Analytics use aggregated data only. No personally identifiable analytics tracking without consent.',
         },
         {
           heading: 'Third-party cookies',
@@ -28,15 +28,15 @@ export default function CookiePolicyPage() {
         },
         {
           heading: 'Managing cookies',
-          body: '[You can control cookies through your browser settings. Disabling essential cookies will affect site functionality. Disabling analytics cookies will not affect site functionality but will reduce our ability to improve the site. Browser-specific instructions for managing cookies are available from browser vendors.]',
+          body: 'You can control cookies through your browser settings. Disabling essential cookies will affect site functionality. Disabling analytics cookies will not affect site functionality but will reduce our ability to improve the site. Browser-specific instructions for managing cookies are available from browser vendors.',
         },
         {
           heading: 'Cookie consent',
-          body: '[A cookie consent banner will be implemented before commercial launch to allow users to manage cookie preferences per applicable regulations. This functionality is planned for a later development phase.]',
+          body: 'A cookie consent banner will be implemented before commercial launch to allow users to manage cookie preferences per applicable regulations. This functionality is planned for a later development phase.',
         },
         {
           heading: 'Contact',
-          body: '[For cookie policy questions: [PRIVACY EMAIL PENDING]. ARIOT, [ADDRESS PENDING], Bangladesh.]',
+          body: 'For cookie policy questions, use the contact form on our Contact page. ARIOT Technologies, Bangladesh.',
         },
       ]}
     />
