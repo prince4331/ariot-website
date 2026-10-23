@@ -102,6 +102,8 @@ const engagementSteps = [
   },
 ] as const;
 
+export const revalidate = 0;
+
 const approach = [
   {
     eyebrow: '01 · FIELD CONTEXT',

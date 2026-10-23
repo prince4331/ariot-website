@@ -35,14 +35,16 @@ import {
  * published category only. Anything else (draft, archived, soft-deleted,
  * unknown slug) renders notFound() — drafts are never exposed publicly.
  *
- * Render strategy (TASK 18): published slugs are prerendered at build;
- * unknown slugs are rendered on demand and cached with an indefinite ISR
- * lifetime (`revalidate = false`), refreshed by `revalidatePath` from the
- * admin mutation routes (including the previous slug after a rename or an
- * unpublish, so a draft's cached 404 is also cleared).
+ * Render strategy: the page is rendered at request time (`revalidate = 0`)
+ * so the published post is always read fresh from the database. This
+ * prevents the empty build-time prerender from being served indefinitely
+ * when the Docker image is built without database access (issue I-034).
+ * `dynamicParams = true` allows any slug to be resolved on demand.
+ * Admin mutations invalidate the tagged public reads so subsequent
+ * requests reflect the change immediately.
  */
 
-export const revalidate = false;
+export const revalidate = 0;
 export const dynamicParams = true;
 
 interface BlogPostPageProps {
@@ -134,7 +136,7 @@ function BlogDetailView({ post, related, tocItems, Icon }: BlogDetailViewProps) 
         <Container>
           <div className="mx-auto flex max-w-3xl flex-col gap-6">
             <div className="flex flex-wrap items-center gap-4">
-              <span className="bg-cyan-faint border-cyan-400/30 text-cyan-400 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[11px] tracking-[0.14em] uppercase">
+              <span className="bg-cyan-faint inline-flex items-center gap-1.5 rounded-full border border-cyan-400/30 px-3 py-1 font-mono text-[11px] tracking-[0.14em] text-cyan-400 uppercase">
                 <Icon className="h-3.5 w-3.5" aria-hidden />
                 {post.categoryName}
               </span>
@@ -149,7 +151,7 @@ function BlogDetailView({ post, related, tocItems, Icon }: BlogDetailViewProps) 
             </h1>
             <div className="text-steel-400 flex flex-wrap items-center gap-5 text-sm">
               <span className="inline-flex items-center gap-1.5">
-                <span className="bg-cyan-400/80 h-6 w-6 rounded-full" aria-hidden />
+                <span className="h-6 w-6 rounded-full bg-cyan-400/80" aria-hidden />
                 {post.authorName}
               </span>
               {post.publishedAt && (

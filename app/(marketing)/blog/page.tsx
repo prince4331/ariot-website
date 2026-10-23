@@ -19,15 +19,17 @@ import { safeListPublishedPosts } from '@/server/public/blog';
 /**
  * /blog — DB-backed blog listing (L3 Minimal Marketing CMS).
  *
- * Render strategy (TASK 18): the page is statically prerendered with an
- * indefinite ISR cache (`revalidate = false`) and refreshed on demand via
- * `revalidatePath` from the admin blog mutation API routes — newly published
- * posts appear without a rebuild, and nothing goes stale indefinitely.
+ * Render strategy: the page is rendered at request time (`revalidate = 0`)
+ * so the published posts are always read fresh from the database. This
+ * prevents the empty build-time prerender from being served indefinitely
+ * when the Docker image is built without database access (issue I-034).
  * Only PUBLISHED, non-deleted posts with a published category are returned
  * by the query layer; with zero posts the page renders an honest empty state.
+ * Admin mutations still invalidate the tagged public reads so subsequent
+ * requests reflect the change immediately.
  */
 
-export const revalidate = false;
+export const revalidate = 0;
 
 export const metadata: Metadata = defineMetadata({
   title: 'Blog — engineering notes',

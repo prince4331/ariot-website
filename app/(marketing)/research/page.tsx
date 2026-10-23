@@ -66,6 +66,8 @@ export const metadata: Metadata = defineMetadata({
   path: '/research',
 });
 
+export const revalidate = 0;
+
 export default async function ResearchPage() {
   // TASK 10 — Research page: recent published engineering notes. The static
   // core page remains; the section is omitted when nothing is published yet.

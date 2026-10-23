@@ -18,12 +18,7 @@ import { Organization } from '@/components/seo/organization';
 import { defineMetadata } from '@/lib/seo/metadata';
 import { blogCategoryIcon } from '@/components/marketing/blog-category-icon';
 import { safeGetPublishedPostsByCategory } from '@/server/public/blog';
-import {
-  CLEANBOT_TECH,
-  ROBOTICS_FUTURE_LINES,
-  ROBOTICS_ROADMAP,
-  ROBOTICS_TECH,
-} from './_data';
+import { CLEANBOT_TECH, ROBOTICS_FUTURE_LINES, ROBOTICS_ROADMAP, ROBOTICS_TECH } from './_data';
 
 export const metadata: Metadata = defineMetadata({
   title: 'Autonomous Robotics',
@@ -31,6 +26,8 @@ export const metadata: Metadata = defineMetadata({
     'ARIOT engineers autonomous robots with ROS 2, LiDAR SLAM, sensor fusion, AI vision, and autonomous navigation — built and validated for real South Asian environments.',
   path: '/robotics',
 });
+export const revalidate = 0;
+
 export default async function RoboticsPage() {
   // TASK 8 — Robotics updates: published posts in the Robotics R&D category.
   // Section is omitted entirely when no matching posts exist (honest empty).
@@ -53,8 +50,7 @@ export default async function RoboticsPage() {
             <div className="flex flex-col gap-8">
               <Badge variant="cyan">Robotics · R&amp;D · Engineered in Bangladesh</Badge>
               <h1 className="text-steel-100 font-display max-w-4xl text-4xl leading-[1.04] font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl">
-                ARIOT Autonomous{' '}
-                <span className="text-cyan-400">Robotics.</span>
+                ARIOT Autonomous <span className="text-cyan-400">Robotics.</span>
               </h1>
               <p className="text-steel-200 max-w-2xl text-base sm:text-lg md:text-xl">
                 We build autonomous machines that work on real floors and real factory aisles —
@@ -144,7 +140,7 @@ export default async function RoboticsPage() {
           </FeatureGrid>
         </Container>
       </Section>
-{/* Flagship — CleanBot */}
+      {/* Flagship — CleanBot */}
       <Section id="cleanbot" bg="raised" spacing="default">
         <Container>
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
@@ -157,27 +153,26 @@ export default async function RoboticsPage() {
               <p className="text-steel-300 max-w-2xl text-base md:text-lg">
                 CleanBot is our first autonomous platform. It learns the layout of a space, plans
                 efficient cleaning routes, and returns to its charging dock — no tether, no
-                dedicated operator. Repetitive floor cleaning consumes thousands of operator hours
-                a year in offices, factories, and institutions across Bangladesh; CleanBot is
+                dedicated operator. Repetitive floor cleaning consumes thousands of operator hours a
+                year in offices, factories, and institutions across Bangladesh; CleanBot is
                 engineered to take on that cycle.
               </p>
               <ul className="flex flex-wrap gap-2">
                 {CLEANBOT_TECH.map((chip) => (
-                    <li
-                      key={chip}
-                      className="border-steel-700 bg-bg-elevated text-steel-200 rounded-sm border px-2 py-0.5 font-mono text-[11px]"
-                    >
-                      {chip}
-                    </li>
-                  ),
-                )}
+                  <li
+                    key={chip}
+                    className="border-steel-700 bg-bg-elevated text-steel-200 rounded-sm border px-2 py-0.5 font-mono text-[11px]"
+                  >
+                    {chip}
+                  </li>
+                ))}
               </ul>
               <div className="flex flex-wrap items-center gap-3">
                 <Badge variant="warning">Active R&amp;D · Prototype stage</Badge>
               </div>
               <p className="text-steel-300 max-w-2xl text-sm">
-                CleanBot is in active prototype validation on real floors. We are not shipping
-                units yet, and we will not take pre-orders until field trials clear.
+                CleanBot is in active prototype validation on real floors. We are not shipping units
+                yet, and we will not take pre-orders until field trials clear.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="primary" size="lg">
@@ -209,7 +204,10 @@ export default async function RoboticsPage() {
                   }}
                 />
                 <div className="glass-panel absolute right-4 bottom-4 left-4 flex items-start gap-3 px-4 py-3">
-                  <span className="bg-cyan-400 mt-1 h-2.5 w-2.5 shrink-0 rounded-full" aria-hidden />
+                  <span
+                    className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-400"
+                    aria-hidden
+                  />
                   <div>
                     <p className="text-steel-400 font-mono text-[10px] font-medium tracking-[0.16em] uppercase">
                       Prototype · In active R&amp;D
@@ -237,7 +235,7 @@ export default async function RoboticsPage() {
           <Timeline items={ROBOTICS_ROADMAP} />
         </Container>
       </Section>
-{/* Future lines */}
+      {/* Future lines */}
       <Section bg="raised" spacing="default">
         <Container className="flex flex-col gap-12">
           <SectionHeader

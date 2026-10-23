@@ -40,12 +40,14 @@ export const metadata: Metadata = defineMetadata({
   path: '/',
 });
 
+export const revalidate = 0;
+
 export default async function HomePage() {
   // TASK 7 — homepage latest updates: the 3 newest published BlogPosts.
-  // The page remains static (indefinite ISR, refreshed via revalidatePath
-  // from the admin blog routes). With zero published posts the section falls
-  // back to the static teaser cards below — an honest, non-empty launch state
-  // (documented in docs/06_PROGRESS_LOG.md, L3).
+  // The page renders at request time (revalidate = 0) so the latest posts
+  // are always read fresh from the database. With zero published posts the
+  // section falls back to the static teaser cards below — an honest,
+  // non-empty launch state (documented in docs/06_PROGRESS_LOG.md, L3).
   const latestPosts = await safeGetLatestPublishedPosts(3);
   const hasPosts = latestPosts.length > 0;
 
@@ -155,8 +157,8 @@ export default async function HomePage() {
               <p className="text-steel-300 max-w-2xl text-base md:text-lg">
                 CleanBot is our first autonomous platform. It learns the layout of a space, plans
                 efficient cleaning routes, and returns to its charging dock — no tether, no
-                dedicated operator. Repetitive floor cleaning consumes thousands of operator hours
-                a year in offices, factories, and institutions across Bangladesh; CleanBot is
+                dedicated operator. Repetitive floor cleaning consumes thousands of operator hours a
+                year in offices, factories, and institutions across Bangladesh; CleanBot is
                 engineered to take on that cycle from the ground up.
               </p>
               <ul className="flex flex-wrap gap-2">
@@ -173,8 +175,8 @@ export default async function HomePage() {
                 <Badge variant="warning">Active R&amp;D · Prototype stage</Badge>
               </div>
               <p className="text-steel-300 max-w-2xl text-sm">
-                CleanBot is in active prototype validation on real floors. We are not shipping
-                units yet, and we will not take pre-orders until field trials clear.
+                CleanBot is in active prototype validation on real floors. We are not shipping units
+                yet, and we will not take pre-orders until field trials clear.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="primary" size="lg">
@@ -206,7 +208,10 @@ export default async function HomePage() {
                   }}
                 />
                 <div className="glass-panel absolute right-4 bottom-4 left-4 flex items-start gap-3 px-4 py-3">
-                  <span className="bg-cyan-400 mt-1 h-2.5 w-2.5 shrink-0 rounded-full" aria-hidden />
+                  <span
+                    className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-400"
+                    aria-hidden
+                  />
                   <div>
                     <p className="text-steel-400 font-mono text-[10px] font-medium tracking-[0.16em] uppercase">
                       Prototype · In active R&amp;D
