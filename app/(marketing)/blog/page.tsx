@@ -34,7 +34,7 @@ export const revalidate = 0;
 export const metadata: Metadata = defineMetadata({
   title: 'Blog — engineering notes',
   description:
-    'Read ARIOT engineering notes, robotics R&D logs, IoT deployment thinking, and tutorials for South Asian hardware teams.',
+    'Read ARIOT engineering notes, robotics R&D logs, IoT deployment thinking, and tutorials for hardware teams in Bangladesh.',
   path: '/blog',
 });
 

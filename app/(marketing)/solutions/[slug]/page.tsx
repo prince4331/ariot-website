@@ -68,7 +68,7 @@ export default async function SolutionDetailPage({ params }: SolutionPageProps) 
         description={solution.description}
         url={`/solutions/${solution.slug}`}
         category={solution.industry}
-        areaServed={['Bangladesh', 'South Asia']}
+        areaServed={['Bangladesh']}
         hasOfferCatalog={solution.relatedProductSlugs.map(
           (slug) => PRODUCTS.find((p) => p.slug === slug)?.title ?? slug,
         )}
@@ -192,7 +192,8 @@ export default async function SolutionDetailPage({ params }: SolutionPageProps) 
                   Real {solution.name} deployments will be published here
                 </h2>
                 <p className="text-steel-300 mt-4 max-w-2xl text-base">
-                  A full deployment narrative — problem, approach, environment, and measured outcome — will appear here once an approved case study is ready.
+                  A full deployment narrative — problem, approach, environment, and measured outcome
+                  — will appear here once an approved case study is ready.
                 </p>
               </div>
               <div className="border-steel-700 relative aspect-video overflow-hidden rounded-lg border">

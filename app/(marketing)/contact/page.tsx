@@ -90,13 +90,13 @@ export default function ContactPage() {
             <CardBody className="flex flex-col gap-6 p-6 md:p-8">
               <div>
                 <p className="font-mono text-[11px] tracking-[0.18em] text-cyan-400 uppercase">
-                  Bangladesh &amp; South Asia
+                  Bangladesh
                 </p>
                 <h2 className="text-steel-100 font-display mt-3 text-3xl font-semibold tracking-tight">
                   ARIOT Technologies
                 </h2>
                 <p className="text-steel-300 mt-4 text-base">
-                  An engineering company building robotics and IoT systems for South Asian
+                  An engineering company building robotics and IoT systems for Bangladeshi
                   conditions. Office address and contact details will be listed once confirmed for
                   publication.
                 </p>

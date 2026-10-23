@@ -11,7 +11,7 @@ export const siteConfig = {
   name: 'ARIOT',
   fullName: 'ARIOT — Autonomous Robotics and IoT',
   description:
-    'ARIOT engineers autonomous robotics and intelligent IoT systems for industry, smart cities, education, and prosumers across South Asia.',
+    'ARIOT Technologies develops autonomous robotics and intelligent IoT systems for practical applications in Bangladesh.',
   url: env.NEXT_PUBLIC_SITE_URL,
   locale: 'en_US',
   defaultLocale: 'en',
@@ -24,7 +24,7 @@ export const siteConfig = {
     'smart city',
     'sensors',
     'Bangladesh robotics',
-    'South Asia robotics',
+    'Bangladesh IoT',
     'ARIOT',
   ],
   // Social profiles are added once accounts are live; empty values are

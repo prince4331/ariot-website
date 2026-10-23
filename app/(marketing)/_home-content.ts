@@ -69,7 +69,7 @@ export const BUSINESS_AREAS: ReadonlyArray<FeatureCardData> = [
     eyebrow: 'In Development',
     title: 'IoT product development',
     description:
-      'Connected devices for home safety, smart energy control, and environment monitoring — designed for South Asian conditions.',
+      'Connected devices for home safety, smart energy control, and environment monitoring — designed for conditions in Bangladesh.',
     href: '/products',
   },
   {
@@ -130,7 +130,7 @@ export const SOLUTIONS: ReadonlyArray<FeatureCardData> = [
     icon: House,
     title: 'Homes',
     description:
-      'Safety, energy visibility, and smart appliance control for connected households across South Asia.',
+      'Safety, energy visibility, and smart appliance control for connected households in Bangladesh.',
     href: '/solutions',
   },
   {
@@ -232,7 +232,7 @@ export const BLOG_TEASERS: ReadonlyArray<FeatureCardData> = [
     eyebrow: 'IoT in Bangladesh',
     title: 'Why deployments here look different',
     description:
-      'Power reliability, regional networks, and the design choices that make IoT stick in real South Asian environments.',
+      'Power reliability, regional networks, and the design choices that make IoT stick in real environments in Bangladesh.',
     href: '/blog',
   },
   {

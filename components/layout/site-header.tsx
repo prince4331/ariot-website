@@ -49,30 +49,16 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label="ARIOT — home"
-          className="inline-flex items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
+          className="focus-visible:ring-offset-bg-base inline-flex items-center rounded-sm focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:outline-none"
         >
-          {/* Desktop: full logo (icon + wordmark) — hidden on mobile */}
-          <span className="hidden md:inline-flex">
-            <Image
-              src="/media/brand/ariot-logo-full.png"
-              alt=""
-              width={46}
-              height={40}
-              className="h-9 w-auto"
-              priority
-            />
-          </span>
-          {/* Mobile: compact icon mark only */}
-          <span className="md:hidden">
-            <Image
-              src="/media/brand/ariot-logo-icon.png"
-              alt=""
-              width={104}
-              height={28}
-              className="h-7 w-auto"
-              priority
-            />
-          </span>
+          <Image
+            src="/media/brand/ariot-logo-icon.png"
+            alt=""
+            width={370}
+            height={100}
+            className="h-7 w-auto md:h-9"
+            priority
+          />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">

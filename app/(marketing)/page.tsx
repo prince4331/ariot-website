@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Bot, MapPin, Radio, Wrench } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
@@ -9,34 +9,19 @@ import { Section } from '@/components/ui/section';
 import { CtaBand } from '@/components/marketing/cta-band';
 import { FeatureCard } from '@/components/marketing/feature-card';
 import { FeatureGrid } from '@/components/marketing/feature-grid';
-import { FeatureStack } from '@/components/marketing/feature-stack';
 import { HeroShell } from '@/components/marketing/hero-shell';
-import { LogoStrip } from '@/components/marketing/logo-strip';
-import { MetricBand } from '@/components/marketing/metric-band';
 import { SectionHeader } from '@/components/marketing/section-header';
-import { Hero3DClient } from '@/components/three/hero-3d-client';
 import { Organization } from '@/components/seo/organization';
 import { WebSite } from '@/components/seo/website';
 import { defineMetadata } from '@/lib/seo/metadata';
 import { blogCategoryIcon } from '@/components/marketing/blog-category-icon';
 import { safeGetLatestPublishedPosts } from '@/server/public/blog';
-import {
-  BLOG_TEASERS,
-  BUSINESS_AREAS,
-  CAPABILITIES,
-  COMPONENT_TEASERS,
-  ENGINEERING_FULL_LIST,
-  ENGINEERING_PILLARS,
-  METRICS,
-  PRODUCTS,
-  SOLUTIONS,
-} from './_home-content';
-import { CLEANBOT_TECH } from './robotics/_data';
+import { BLOG_TEASERS } from './_home-content';
 
 export const metadata: Metadata = defineMetadata({
   title: 'Building the Robotics Ecosystem of Bangladesh',
   description:
-    'ARIOT Technologies researches autonomous robotics, develops connected IoT products, and is building the engineering workspace and component supply for innovators across South Asia.',
+    'ARIOT Technologies researches autonomous robotics, develops connected IoT products, and is building the engineering workspace and component supply for innovators in Bangladesh.',
   path: '/',
 });
 
@@ -58,334 +43,282 @@ export default async function HomePage() {
 
       {/* 1 — Hero */}
       <HeroShell>
-        <Section bg="base" spacing="loose">
-          <Container className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_0.7fr] lg:items-center">
+        <Section bg="base" spacing="default">
+          <Container className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
             <div className="flex flex-col gap-8">
-              <Badge variant="cyan">Robotics · IoT · Engineered in Bangladesh</Badge>
+              <Badge variant="cyan">ARIOT Technologies · Bangladesh</Badge>
 
-              <h1 className="text-steel-100 font-display max-w-4xl text-4xl leading-[1.04] font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl">
-                Building the Robotics Ecosystem{' '}
-                <span className="text-cyan-400">of Bangladesh.</span>
+              <h1 className="text-steel-100 font-display text-4xl leading-[1.04] font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
+                Engineering the future, right here{' '}
+                <span className="text-cyan-400">in Bangladesh.</span>
               </h1>
 
               <p className="text-steel-200 max-w-2xl text-base sm:text-lg md:text-xl">
-                ARIOT Technologies researches autonomous robotics, develops connected IoT products,
-                and is building the engineering workspace and component supply that local innovators
-                need.
+                We build autonomous robots, intelligent safety devices, and practical engineering
+                solutions — turning local ideas into real-world technology.
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
                 <Button asChild size="xl" variant="primary">
-                  <Link href="/quote">
-                    Request a quote
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
+                  <Link href="/robotics">Explore our work</Link>
                 </Button>
                 <Button asChild size="xl" variant="secondary">
-                  <Link href="/research">Explore R&amp;D</Link>
+                  <Link href="/about">Meet ARIOT</Link>
                 </Button>
               </div>
 
-              <div
-                aria-hidden
-                className="text-steel-500 flex items-center gap-3 font-mono text-[11px] tracking-[0.18em] uppercase"
-              >
-                <span className="bg-steel-700 h-px w-12" />
-                Scroll
-              </div>
+              <p className="text-steel-500 font-mono text-[11px] tracking-[0.18em] uppercase">
+                Building the Robotics Ecosystem of Bangladesh.
+              </p>
+
+              <ul className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4">
+                {[
+                  {
+                    title: 'Robotics',
+                    subtitle: 'Autonomous systems',
+                    icon: Bot,
+                    href: '/robotics',
+                  },
+                  {
+                    title: 'IoT Devices',
+                    subtitle: 'Connected safety',
+                    icon: Radio,
+                    href: '/products/iot-home-safety-device',
+                  },
+                  {
+                    title: 'Engineering Workspace',
+                    subtitle: 'Planned maker space',
+                    icon: Wrench,
+                    href: '/workspace',
+                  },
+                  {
+                    title: 'Local Impact',
+                    subtitle: 'Built in Bangladesh',
+                    icon: MapPin,
+                    href: '/about',
+                  },
+                ].map(({ title, subtitle, icon: Icon, href }) => (
+                  <li key={title}>
+                    <Link
+                      href={href}
+                      className="group ease-out-quart focus-visible:ring-offset-bg-base flex flex-col gap-1.5 rounded-md transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 motion-reduce:transition-none"
+                    >
+                      <span className="bg-cyan-faint ease-out-quart group-hover:text-bg-base flex h-8 w-8 items-center justify-center rounded-md text-cyan-400 transition-colors duration-200 group-hover:bg-cyan-400 motion-reduce:transition-none">
+                        <Icon className="h-5 w-5" aria-hidden />
+                      </span>
+                      <span className="flex flex-col">
+                        <span className="text-steel-100 text-sm font-semibold">{title}</span>
+                        <span className="text-steel-400 text-[11px]">{subtitle}</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* 3D hero — lazy-loaded, mobile fallback at < 768px.
-                Wrapped in a relative container so the glass status card
-                can overlay as an absolute-positioned panel. */}
-            <div className="relative hidden h-[420px] overflow-hidden rounded-2xl md:block lg:h-[520px]">
-              <Hero3DClient className="h-full w-full" />
-              {/* Glass engineering status overlay — frames the 3D as a
-                  live prototype, not a finished product. */}
-              <div className="glass-panel absolute right-4 bottom-4 left-4 flex items-start gap-3 px-4 py-3">
-                <span
-                  className="mt-1 flex h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-400"
-                  aria-hidden
+            {/* Right-side composition — compact overlapping product panels:
+                large CleanBot card behind a smaller Gas Detector card. The
+                image fills each card with an opaque label panel at the bottom. */}
+            <div className="relative grid grid-cols-2 gap-4 lg:block lg:h-[500px]">
+              <Link
+                href="/robotics#cleanbot"
+                className="group border-steel-700 bg-bg-raised ease-out-quart focus-visible:ring-offset-bg-base relative overflow-hidden rounded-2xl border transition-transform duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 motion-reduce:transform-none motion-reduce:transition-none max-lg:aspect-[4/5] lg:absolute lg:inset-y-0 lg:left-0 lg:w-[76%]"
+              >
+                <Image
+                  src="/media/home/ariot-cleanbot-home.webp"
+                  alt="ARIOT CleanBot — autonomous floor-cleaning robot"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 46vw, 38vw"
+                  className="ease-out-quart object-cover transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
                 />
-                <div className="min-w-0">
-                  <p className="text-steel-400 font-mono text-[10px] font-medium tracking-[0.16em] uppercase">
-                    Active R&amp;D · Prototype stage
+                <div className="border-steel-800 bg-bg-elevated lg:bg-bg-elevated/95 lg:shadow-2 absolute inset-x-0 bottom-0 border-t px-4 py-3 lg:inset-x-3 lg:bottom-3 lg:rounded-xl lg:border lg:p-4 lg:backdrop-blur-md">
+                  <p className="font-display text-steel-100 text-sm font-semibold sm:text-base">
+                    ARIOT CleanBot
                   </p>
-                  <p className="font-display text-steel-100 mt-0.5 truncate text-sm font-semibold">
-                    Autonomous floor-cleaning system
+                  <p className="text-steel-300 text-xs sm:text-sm">
+                    Autonomous floor-cleaning robot
                   </p>
+                  <Badge variant="warning" className="mt-2 self-start">
+                    Prototype development
+                  </Badge>
                 </div>
-              </div>
+              </Link>
+
+              <Link
+                href="/products/iot-home-safety-device"
+                className="group border-steel-700 bg-bg-raised ease-out-quart focus-visible:ring-offset-bg-base relative z-10 overflow-hidden rounded-xl border transition-transform duration-300 hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 motion-reduce:transform-none motion-reduce:transition-none max-lg:aspect-[4/5] lg:absolute lg:top-5 lg:right-0 lg:h-[235px] lg:w-[55%]"
+              >
+                <Image
+                  src="/media/home/ariot-gas-detector-home.webp"
+                  alt="ARIOT Gas Detector — connected gas-safety monitoring device"
+                  fill
+                  sizes="(max-width: 1024px) 46vw, 28vw"
+                  className="ease-out-quart object-cover transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
+                />
+                <div className="border-steel-800 bg-bg-elevated lg:bg-bg-elevated/95 lg:shadow-2 absolute inset-x-0 bottom-0 border-t p-3 lg:inset-x-3 lg:bottom-3 lg:rounded-xl lg:border lg:backdrop-blur-md">
+                  <p className="font-display text-steel-100 text-sm font-semibold">
+                    ARIOT Gas Detector
+                  </p>
+                  <p className="text-steel-300 text-xs">Connected gas-safety monitoring</p>
+                  <Badge variant="warning" className="mt-1.5 self-start">
+                    Pilot-stage development
+                  </Badge>
+                </div>
+              </Link>
             </div>
           </Container>
         </Section>
       </HeroShell>
 
-      {/* 2 — Capability strip */}
-      <Section bg="raised" spacing="compact">
-        <Container>
-          <LogoStrip eyebrow="What we do" items={CAPABILITIES} />
-        </Container>
-      </Section>
-
-      {/* 3 — Business areas */}
+      {/* 3 — Who we are */}
       <Section bg="base" spacing="default">
-        <Container className="flex flex-col gap-12">
-          <SectionHeader
-            eyebrow="Business areas"
-            title="Five directions, one ecosystem"
-            subhead="From autonomous R&D to the workspace and components that support every builder in Bangladesh."
-          />
-          <FeatureGrid columns={3}>
-            {BUSINESS_AREAS.map((area) => (
-              <FeatureCard key={area.title} {...area} cta="Learn more" />
-            ))}
-          </FeatureGrid>
-        </Container>
-      </Section>
-
-      {/* 4 — CleanBot flagship */}
-      <Section bg="raised" spacing="default">
         <Container>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
-            <div className="flex flex-col gap-6">
-              <SectionHeader
-                eyebrow="Flagship program"
-                title="ARIOT CleanBot — the robot we are building first"
-                subhead="A self-mapping, low-noise floor-cleaning robot designed for industrial and commercial floors."
-              />
-              <p className="text-steel-300 max-w-2xl text-base md:text-lg">
-                CleanBot is our first autonomous platform. It learns the layout of a space, plans
-                efficient cleaning routes, and returns to its charging dock — no tether, no
-                dedicated operator. Repetitive floor cleaning consumes thousands of operator hours a
-                year in offices, factories, and institutions across Bangladesh; CleanBot is
-                engineered to take on that cycle from the ground up.
+          <div className="border-steel-800 grid grid-cols-1 gap-12 border-t pt-10 lg:grid-cols-[1fr_0.8fr] lg:gap-16 lg:pt-12">
+            <div className="flex flex-col items-start gap-6">
+              <p className="font-mono text-xs font-medium tracking-[0.18em] text-cyan-400 uppercase">
+                WHO WE ARE
               </p>
-              <ul className="flex flex-wrap gap-2">
-                {CLEANBOT_TECH.map((chip) => (
-                  <li
-                    key={chip}
-                    className="border-steel-700 bg-bg-elevated text-steel-200 rounded-sm border px-2 py-0.5 font-mono text-[11px]"
-                  >
-                    {chip}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge variant="warning">Active R&amp;D · Prototype stage</Badge>
-              </div>
-              <p className="text-steel-300 max-w-2xl text-sm">
-                CleanBot is in active prototype validation on real floors. We are not shipping units
-                yet, and we will not take pre-orders until field trials clear.
+              <h2 className="font-display text-steel-100 text-3xl leading-tight font-semibold tracking-tight text-balance md:text-4xl">
+                From ideas to working technology.
+              </h2>
+              <p className="text-steel-200 max-w-xl text-base md:text-lg">
+                ARIOT Technologies is a Bangladesh-based robotics and IoT engineering venture. We
+                bring electronics, embedded systems, robotics, and software together to develop
+                practical products for real-world needs.
               </p>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="primary" size="lg">
-                  <Link href="/robotics#cleanbot">
-                    Meet CleanBot
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="secondary" size="lg">
-                  <Link href="/blog">Read the build log</Link>
-                </Button>
-              </div>
+              <Button asChild variant="secondary">
+                <Link href="/about">
+                  Get to know ARIOT
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
 
-            <div className="relative">
-              <div className="border-steel-700 relative aspect-[4/5] w-full overflow-hidden rounded-xl border">
-                <Image
-                  src="/media/products/autonomous-floor-cleaning-robot/products-autonomous-floor-cleaning-robot-hero-01-4x5.svg"
-                  alt="ARIOT CleanBot — autonomous floor-cleaning robot concept render"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 45vw"
-                />
-                <div
+            <div className="flex flex-col">
+              <p className="font-mono text-xs font-medium tracking-[0.18em] text-cyan-400 uppercase">
+                HOW WE WORK
+              </p>
+              <ol className="divide-steel-800 flex flex-col divide-y">
+                <li className="flex flex-col gap-1 py-5 first:pt-0 last:pb-0">
+                  <span className="font-mono text-xs font-medium text-cyan-400">01</span>
+                  <h3 className="font-display text-steel-100 text-base font-semibold">
+                    Understand the problem
+                  </h3>
+                  <p className="text-steel-300 text-sm">
+                    Start with practical challenges and real user needs.
+                  </p>
+                </li>
+                <li className="flex flex-col gap-1 py-5 first:pt-0 last:pb-0">
+                  <span className="font-mono text-xs font-medium text-cyan-400">02</span>
+                  <h3 className="font-display text-steel-100 text-base font-semibold">
+                    Engineer the solution
+                  </h3>
+                  <p className="text-steel-300 text-sm">
+                    Build across hardware, firmware, and software.
+                  </p>
+                </li>
+                <li className="flex flex-col gap-1 py-5 first:pt-0 last:pb-0">
+                  <span className="font-mono text-xs font-medium text-cyan-400">03</span>
+                  <h3 className="font-display text-steel-100 text-base font-semibold">
+                    Prototype and improve
+                  </h3>
+                  <p className="text-steel-300 text-sm">Test, learn, and refine before scaling.</p>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </Container>
+      </Section>
+
+      {/* 4 — Featured products: concise previews, detailed stories on product pages */}
+      <Section bg="raised" spacing="default">
+        <Container className="flex flex-col gap-10">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-2xl">
+              <p className="font-mono text-xs font-medium tracking-[0.18em] text-cyan-400 uppercase">
+                WHAT WE ARE BUILDING
+              </p>
+              <h2 className="font-display text-steel-100 mt-3 text-3xl leading-tight font-semibold tracking-tight md:text-4xl">
+                Real challenges. Thoughtful engineering.
+              </h2>
+              <p className="text-steel-300 mt-3 text-base md:text-lg">
+                Meet two ARIOT products taking shape in Bangladesh.
+              </p>
+            </div>
+            <Link
+              href="/research"
+              className="group focus-visible:ring-offset-bg-raised inline-flex w-fit items-center gap-2 rounded-sm text-sm font-semibold text-cyan-400 hover:underline focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2"
+            >
+              Explore our R&amp;D
+              <ArrowRight
+                className="h-4 w-4 transition-transform group-hover:translate-x-1 motion-reduce:transform-none motion-reduce:transition-none"
+                aria-hidden
+              />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <Link
+              href="/robotics#cleanbot"
+              className="group border-steel-700 bg-bg-base focus-visible:ring-offset-bg-raised hover:shadow-2 relative flex flex-col gap-6 rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 motion-reduce:transform-none motion-reduce:transition-none sm:p-8"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="bg-cyan-faint flex h-12 w-12 items-center justify-center rounded-xl text-cyan-400">
+                  <Bot className="h-6 w-6" aria-hidden />
+                </span>
+                <Badge variant="warning">Prototype development</Badge>
+              </div>
+              <div className="flex flex-1 flex-col gap-3">
+                <p className="text-steel-500 font-mono text-xs tracking-widest uppercase">
+                  AUTONOMOUS ROBOTICS
+                </p>
+                <h3 className="font-display text-steel-100 text-2xl font-semibold md:text-3xl">
+                  ARIOT CleanBot
+                </h3>
+                <p className="text-steel-300 max-w-md text-sm leading-relaxed md:text-base">
+                  An autonomous floor-cleaning robot in development for large facilities — designed
+                  to make repetitive cleaning easier to manage.
+                </p>
+              </div>
+              <span className="flex items-center gap-2 text-sm font-semibold text-cyan-400">
+                Discover CleanBot
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1 motion-reduce:transform-none motion-reduce:transition-none"
                   aria-hidden
-                  className="pointer-events-none absolute inset-0"
-                  style={{
-                    background: 'linear-gradient(180deg, transparent 55%, var(--bg-base) 100%)',
-                  }}
                 />
-                <div className="glass-panel absolute right-4 bottom-4 left-4 flex items-start gap-3 px-4 py-3">
-                  <span
-                    className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-cyan-400"
-                    aria-hidden
-                  />
-                  <div>
-                    <p className="text-steel-400 font-mono text-[10px] font-medium tracking-[0.16em] uppercase">
-                      Prototype · In active R&amp;D
-                    </p>
-                    <p className="font-display text-steel-100 mt-0.5 text-sm font-semibold">
-                      CleanBot — mapping a real floor
-                    </p>
-                  </div>
-                </div>
+              </span>
+            </Link>
+            <Link
+              href="/products/iot-home-safety-device"
+              className="group border-steel-700 bg-bg-base focus-visible:ring-offset-bg-raised hover:shadow-2 relative flex flex-col gap-6 rounded-2xl border p-6 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 motion-reduce:transform-none motion-reduce:transition-none sm:p-8"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="bg-cyan-faint flex h-12 w-12 items-center justify-center rounded-xl text-cyan-400">
+                  <Radio className="h-6 w-6" aria-hidden />
+                </span>
+                <Badge variant="warning">Pilot-stage development</Badge>
               </div>
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* 5 — R&D and engineering proof */}
-      <Section bg="raised" spacing="default">
-        <Container className="flex flex-col gap-16 md:gap-20">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <SectionHeader
-              eyebrow="Research & development"
-              title="Real engineering across the stack"
-              subhead="From the embedded board to the cloud dashboard — we own the full chain and test in real conditions."
-            />
-            <Button asChild variant="ghost" className="shrink-0">
-              <Link href="/research">
-                View all R&amp;D
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-          <FeatureStack items={ENGINEERING_PILLARS} />
-          <ul
-            aria-label="All engineering capabilities"
-            className="border-steel-800 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t pt-8"
-          >
-            {ENGINEERING_FULL_LIST.map((item) => (
-              <li
-                key={item}
-                className="text-steel-300 font-mono text-[11px] tracking-[0.18em] uppercase"
-              >
-                · {item}
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </Section>
-
-      {/* 6 — Robotics workspace */}
-      <Section bg="base" spacing="default">
-        <Container>
-          <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_0.8fr] lg:items-center">
-            <div className="flex flex-col gap-6">
-              <SectionHeader
-                eyebrow="Planned initiative"
-                title="A shared engineering space for Bangladesh builders"
-                subhead="We are building a robotics co-working workspace for students, engineers, and research teams who need proper bench space, tools, and a technical community."
-              />
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="primary" size="lg">
-                  <Link href="/workspace">
-                    About the workspace
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="secondary" size="lg">
-                  <Link href="/contact">Register interest</Link>
-                </Button>
+              <div className="flex flex-1 flex-col gap-3">
+                <p className="text-steel-500 font-mono text-xs tracking-widest uppercase">
+                  CONNECTED SAFETY
+                </p>
+                <h3 className="font-display text-steel-100 text-2xl font-semibold md:text-3xl">
+                  ARIOT Gas Detector
+                </h3>
+                <p className="text-steel-300 max-w-md text-sm leading-relaxed md:text-base">
+                  A connected home gas-safety device with local alerts and mobile monitoring,
+                  currently being prepared for pilot use.
+                </p>
               </div>
-            </div>
-            <div className="border-steel-700 bg-bg-raised flex flex-col gap-4 rounded-xl border p-6">
-              <h3 className="text-steel-100 font-display text-base font-semibold">
-                Planned facilities
-              </h3>
-              <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
-                {[
-                  'Electronics workbench',
-                  'Soldering station',
-                  'Bench power supplies',
-                  'Hand & assembly tools',
-                  'Meeting area',
-                  'High-speed internet',
-                  'Engineering support',
-                  'Robot assembly space',
-                ].map((f) => (
-                  <li key={f} className="text-steel-200 flex items-center gap-2 text-sm">
-                    <span
-                      aria-hidden
-                      className="inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-cyan-400"
-                    />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Badge variant="warning">Opening details to be announced</Badge>
-            </div>
+              <span className="flex items-center gap-2 text-sm font-semibold text-cyan-400">
+                Discover Gas Detector
+                <ArrowRight
+                  className="h-4 w-4 transition-transform group-hover:translate-x-1 motion-reduce:transform-none motion-reduce:transition-none"
+                  aria-hidden
+                />
+              </span>
+            </Link>
           </div>
-        </Container>
-      </Section>
-
-      {/* 7 — Components and electronics */}
-      <Section bg="raised" spacing="default">
-        <Container className="flex flex-col gap-12">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <SectionHeader
-              eyebrow="Store in development"
-              title="Electronics and robotics components"
-              subhead="We are building a components supply for development boards, sensors, motors, and IoT modules — available for request now, online ordering coming later."
-            />
-            <Button asChild variant="ghost" className="shrink-0">
-              <Link href="/components">
-                Browse components
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-          <FeatureGrid columns={4}>
-            {COMPONENT_TEASERS.map((cat) => (
-              <FeatureCard key={cat.title} {...cat} cta="Explore" />
-            ))}
-          </FeatureGrid>
-        </Container>
-      </Section>
-
-      {/* 8 — IoT products and solutions */}
-      <Section bg="base" spacing="default">
-        <Container className="flex flex-col gap-12">
-          <SectionHeader
-            eyebrow="Products"
-            title="IoT products and robotics systems in development"
-            subhead="Our current product line — from early concept to prototype validation. Status labels reflect where each product actually stands."
-          />
-          <FeatureGrid columns={4}>
-            {PRODUCTS.map((product) => (
-              <FeatureCard key={product.title} {...product} cta="View details" />
-            ))}
-          </FeatureGrid>
-          <div>
-            <Button asChild variant="ghost">
-              <Link href="/products">
-                View all products
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </Container>
-      </Section>
-
-      {/* Solutions sub-section */}
-      <Section bg="raised" spacing="default">
-        <Container className="flex flex-col gap-12">
-          <SectionHeader
-            eyebrow="Where it deploys"
-            title="Engineered for the spaces South Asia actually uses"
-            subhead="From single homes to small factory floors — hardware designed for the environment, not just the demo."
-          />
-          <FeatureGrid columns={3}>
-            {SOLUTIONS.map((solution) => (
-              <FeatureCard key={solution.title} {...solution} cta="See solution" />
-            ))}
-          </FeatureGrid>
-        </Container>
-      </Section>
-
-      {/* 9 — Status metrics */}
-      <Section bg="base" spacing="default">
-        <Container className="flex flex-col gap-12">
-          <SectionHeader
-            eyebrow="Where we stand"
-            title="Honest status indicators"
-            subhead="We use status labels, not invented statistics. Numbers will appear when we have verified evidence to share."
-            size="compact"
-          />
-          <MetricBand metrics={METRICS} />
         </Container>
       </Section>
 
@@ -394,11 +327,11 @@ export default async function HomePage() {
         <Container className="flex flex-col gap-12">
           <SectionHeader
             eyebrow="From the lab"
-            title={hasPosts ? 'Latest from the workbench' : 'Notes from the workbench'}
+            title="From our workbench"
             subhead={
               hasPosts
-                ? 'The newest published engineering notes — build logs, R&D findings, and field reports.'
-                : 'Field reports, R&D logs, and tutorials from the ARIOT engineering team.'
+                ? 'A closer look at the ideas and prototypes we are developing.'
+                : 'Build notes, engineering updates, and ideas from ARIOT.'
             }
           />
           <FeatureGrid columns={3}>
@@ -427,7 +360,7 @@ export default async function HomePage() {
       <CtaBand
         eyebrow="Get involved"
         title="Build something real with us"
-        subtitle="Whether it is a quote request, a workspace enquiry, a component order, or a research collaboration — get in touch and we will route you to the right person."
+        subtitle="Have a robotics, IoT, or engineering challenge? Tell us what you are building."
         primary={{ label: 'Request a quote', href: '/quote' }}
         secondary={{ label: 'Contact ARIOT', href: '/contact' }}
       />

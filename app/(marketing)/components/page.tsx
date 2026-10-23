@@ -109,12 +109,12 @@ export default function ComponentsPage() {
             <Badge variant="warning">Store in Development</Badge>
             <div className="max-w-4xl">
               <h1 className="text-steel-100 font-display text-4xl leading-[1.04] font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl">
-                Electronics and robotics components for South Asian builders
+                Electronics and robotics components for builders in Bangladesh
               </h1>
               <p className="text-steel-200 mt-5 max-w-2xl text-base sm:text-lg md:text-xl">
                 ARIOT Technologies is developing a components business to supply development boards,
                 sensors, motors, robotics parts, and IoT modules to students, engineers, and teams
-                building hardware in Bangladesh and across South Asia.
+                building hardware in Bangladesh.
               </p>
             </div>
             <p className="border-steel-700 bg-bg-raised text-steel-300 max-w-2xl rounded-lg border px-5 py-4 text-sm">

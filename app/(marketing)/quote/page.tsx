@@ -43,7 +43,7 @@ const nextSteps = [
 export const metadata: Metadata = defineMetadata({
   title: 'Request a quote',
   description:
-    'Request an ARIOT quote for robotics products, IoT deployments, custom embedded systems, and South Asia field projects.',
+    'Request an ARIOT quote for robotics products, IoT deployments, custom embedded systems, and field projects in Bangladesh.',
   path: '/quote',
 });
 

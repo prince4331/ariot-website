@@ -27,7 +27,7 @@ import {
 export const metadata: Metadata = defineMetadata({
   title: 'All products',
   description:
-    'Explore ARIOT robotics products, IoT devices, education kits, and custom embedded systems for Bangladesh and South Asia.',
+    'Explore ARIOT robotics products, IoT devices, education kits, and custom embedded systems for Bangladesh.',
   path: '/products',
 });
 

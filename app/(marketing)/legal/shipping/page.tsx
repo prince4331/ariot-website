@@ -21,7 +21,7 @@ export default function ShippingReturnsPage() {
         },
         {
           heading: 'Shipping (planned)',
-          body: 'ARIOT plans to ship from Bangladesh to customers within Bangladesh and, in a later phase, across South Asia. Estimated delivery times, carrier partners, and shipping rates will be published alongside commercial product availability. All shipping will include tracking. Customs and import duties for international orders are the responsibility of the buyer.',
+          body: 'ARIOT plans to ship to customers within Bangladesh once commercial products become available. Estimated delivery times, carrier partners, shipping rates, and tracking availability will be published before accepting orders.',
         },
         {
           heading: 'Lead times (planned)',

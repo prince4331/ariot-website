@@ -70,20 +70,20 @@ export function SiteFooter() {
           <div className="flex flex-col gap-4">
             <Link
               href="/"
-              className="inline-flex items-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base"
+              className="focus-visible:ring-offset-bg-base inline-flex items-center rounded-sm focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               <Image
-                src="/media/brand/ariot-logo-full.png"
-                alt="ARIOT"
-                width={46}
-                height={40}
+                src="/media/brand/ariot-logo-icon.png"
+                alt="ARIOT Technologies"
+                width={370}
+                height={100}
                 className="h-9 w-auto"
               />
             </Link>
             <p className="text-steel-300 max-w-md text-sm">
               ARIOT Technologies researches autonomous robotics, develops connected IoT products,
               and is building the engineering workspace and component supply that local innovators
-              need — engineered in Bangladesh for South Asia.
+              need — designed for practical needs in Bangladesh.
             </p>
           </div>
           <div className="flex flex-col gap-4 lg:items-end">

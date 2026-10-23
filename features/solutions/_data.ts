@@ -113,14 +113,7 @@ export const SOLUTIONS: ReadonlyArray<SolutionSeed> = [
         chips: ['SMS alert', 'Pending final selection', 'Threshold rules'],
       },
     ],
-    techStack: [
-      'LoRaWAN',
-      'Solar harvesting',
-      'Soil probes',
-      'ESP32',
-      'MQTT',
-      'Threshold rules',
-    ],
+    techStack: ['LoRaWAN', 'Solar harvesting', 'Soil probes', 'ESP32', 'MQTT', 'Threshold rules'],
     relatedProductSlugs: ['iot-gateway-node', 'custom-embedded-controller'],
   },
   {
@@ -159,14 +152,7 @@ export const SOLUTIONS: ReadonlyArray<SolutionSeed> = [
         chips: ['GIS dashboard', 'Alert queue', 'Export CSV'],
       },
     ],
-    techStack: [
-      '4G/LTE',
-      'LoRaWAN',
-      'IP65 enclosures',
-      'MQTT',
-      'Edge buffering',
-      'GIS dashboard',
-    ],
+    techStack: ['4G/LTE', 'LoRaWAN', 'IP65 enclosures', 'MQTT', 'Edge buffering', 'GIS dashboard'],
     relatedProductSlugs: ['iot-gateway-node', 'custom-embedded-controller'],
   },
   {
@@ -194,8 +180,7 @@ export const SOLUTIONS: ReadonlyArray<SolutionSeed> = [
       {
         eyebrow: '02 · MONITORING',
         title: 'Real-time load tracking and anomaly alerts',
-        description:
-          'Baseline usage modelling flags unusual draw before the monthly bill arrives.',
+        description: 'Baseline usage modelling flags unusual draw before the monthly bill arrives.',
         chips: ['Baseline', 'Anomaly', 'MQTT'],
       },
       {
@@ -206,14 +191,7 @@ export const SOLUTIONS: ReadonlyArray<SolutionSeed> = [
         chips: ['Reports', 'CSV export', 'Cost centre'],
       },
     ],
-    techStack: [
-      'CT clamp',
-      'Modbus',
-      'MQTT',
-      'ESP32',
-      'Dashboard tooling',
-      'Reporting exports',
-    ],
+    techStack: ['CT clamp', 'Modbus', 'MQTT', 'ESP32', 'Dashboard tooling', 'Reporting exports'],
     relatedProductSlugs: [
       'smart-appliance-control',
       'iot-gateway-node',
@@ -225,7 +203,7 @@ export const SOLUTIONS: ReadonlyArray<SolutionSeed> = [
     name: 'Education',
     tagline: 'Robotics labs, classroom kits, and guided hardware programmes for institutions.',
     description:
-      'Modular robotics kits, curriculum-paired hardware, and lab-ready platforms for schools, polytechnics, and university engineering programmes across Bangladesh and South Asia.',
+      'Modular robotics kits, curriculum-paired hardware, and lab-ready platforms for schools, polytechnics, and university engineering programmes across Bangladesh.',
     industry: 'Schools · polytechnics · universities',
     icon: GraduationCap,
     stats: [
@@ -268,8 +246,7 @@ export const SOLUTIONS: ReadonlyArray<SolutionSeed> = [
   {
     slug: 'custom',
     name: 'Custom R&D',
-    tagline:
-      'Prototype-to-deployment engineering for teams building new robotics or IoT products.',
+    tagline: 'Prototype-to-deployment engineering for teams building new robotics or IoT products.',
     description:
       'End-to-end hardware development: board design, firmware, enclosure, and field trial support for institutions, integrators, and industry teams building their own IoT or robotics product.',
     industry: 'R&D teams · integrators · OEM pilots',

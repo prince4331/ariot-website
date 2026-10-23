@@ -22,7 +22,7 @@ const story = [
     label: 'Founded',
     title: 'ARIOT Technologies established',
     description:
-      'A robotics and IoT engineering company founded in Bangladesh with a focus on autonomous systems and connected devices designed for South Asian conditions.',
+      'A robotics and IoT engineering venture founded in Bangladesh, developing autonomous systems and connected devices for local needs.',
   },
   {
     label: 'First prototypes',
@@ -38,9 +38,9 @@ const story = [
   },
   {
     label: 'Next',
-    title: 'Expand across South Asia',
+    title: 'Strengthen our presence in Bangladesh',
     description:
-      'Regional support, partnerships, and additional product lines are planned as engineering milestones are reached.',
+      'Pilot collaborations, local support, and additional product lines are planned as engineering milestones are reached.',
   },
 ] as const;
 
@@ -53,7 +53,7 @@ const focusAreas = [
   },
   {
     icon: Globe,
-    title: 'South Asian context',
+    title: 'Bangladesh-first design',
     description:
       'Power reliability, network conditions, climate, operator behaviour, and support access are treated as design constraints from day one.',
   },
@@ -75,7 +75,7 @@ const partnerPlaceholders = [
 export const metadata: Metadata = defineMetadata({
   title: 'About ARIOT',
   description:
-    'Learn about ARIOT Technologies — a Bangladesh-based robotics and IoT engineering company building for South Asian conditions.',
+    'Learn about ARIOT Technologies — a Bangladesh-based robotics and IoT engineering venture developing practical technology for local needs.',
   path: '/about',
 });
 
@@ -102,7 +102,7 @@ export default function AboutPage() {
                   Building autonomy for the environments we know
                 </h1>
                 <p className="text-steel-200 mt-5 max-w-2xl text-base sm:text-lg md:text-xl">
-                  We build the machines and systems that let South Asia automate on its own terms —
+                  We develop robotics and connected systems for Bangladesh&apos;s practical needs —
                   hardware and software designed for local conditions, not imported assumptions.
                 </p>
               </div>
@@ -141,7 +141,7 @@ export default function AboutPage() {
         <Container>
           <p className="text-steel-100 font-display mx-auto max-w-4xl text-center text-2xl leading-snug font-semibold tracking-tight md:text-4xl">
             ARIOT exists to engineer practical robotics and connected systems that can be built,
-            serviced, and trusted in Bangladesh and across South Asia.
+            serviced, and trusted in Bangladesh.
           </p>
         </Container>
       </Section>

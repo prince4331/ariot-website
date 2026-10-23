@@ -64,7 +64,7 @@ function buildNewsletterWelcomeHtml(email: string): string {
                 <tr>
                   <td style="padding:24px;">
                     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#C7CDD6;">
-                      You're in. We'll send you updates on ARIOT's robotics and IoT work — product launches, engineering deep-dives, and field notes from building autonomous systems in South Asia.
+                      You're in. We'll send you updates on ARIOT's robotics and IoT work — product launches, engineering deep-dives, and field notes from building autonomous systems in Bangladesh.
                     </p>
                     <p style="margin:0;font-size:15px;line-height:1.6;color:#C7CDD6;">
                       Expect one or two emails per month. No spam, no noise — just the work we think is worth your attention.

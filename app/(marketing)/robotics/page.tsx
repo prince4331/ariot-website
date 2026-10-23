@@ -23,7 +23,7 @@ import { CLEANBOT_TECH, ROBOTICS_FUTURE_LINES, ROBOTICS_ROADMAP, ROBOTICS_TECH }
 export const metadata: Metadata = defineMetadata({
   title: 'Autonomous Robotics',
   description:
-    'ARIOT engineers autonomous robots with ROS 2, LiDAR SLAM, sensor fusion, AI vision, and autonomous navigation — built and validated for real South Asian environments.',
+    'ARIOT engineers autonomous robots with ROS 2, LiDAR SLAM, sensor fusion, AI vision, and autonomous navigation — built and validated for real environments in Bangladesh.',
   path: '/robotics',
 });
 export const revalidate = 0;
