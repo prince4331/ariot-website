@@ -1,7 +1,7 @@
 'use client';
 
 import { createPortal } from 'react-dom';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { Fragment, useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -164,17 +164,40 @@ export function MobileDrawer({ navItems }: MobileDrawerProps) {
         {/* Navigation — scrollable */}
         <nav className="flex-1 overflow-y-auto px-4 py-4" aria-label="Primary mobile">
           <ul className="flex flex-col gap-0.5">
-            {navItems.map((item) => (
-              <li key={item.href}>
-                <NavLink
-                  href={item.href}
-                  className="block w-full rounded-lg px-3 py-3 text-base"
-                  onClick={close}
-                >
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
+            {navItems.map((item) => {
+              const isMain = item.href === '/';
+              const isExplore = item.href === '/solutions';
+              const isResources = item.href === '/blog';
+
+              return (
+                <Fragment key={item.href}>
+                  {isMain && (
+                    <li className="text-steel-400 pt-4 pb-2.5 font-mono text-[11px] font-medium tracking-[0.18em] uppercase first:pt-0">
+                      MAIN
+                    </li>
+                  )}
+                  {isExplore && (
+                    <li className="text-steel-400 border-steel-800 mt-3 border-t pt-4 pb-2.5 font-mono text-[11px] font-medium tracking-[0.18em] uppercase">
+                      EXPLORE
+                    </li>
+                  )}
+                  {isResources && (
+                    <li className="text-steel-400 border-steel-800 mt-3 border-t pt-4 pb-2.5 font-mono text-[11px] font-medium tracking-[0.18em] uppercase">
+                      RESOURCES
+                    </li>
+                  )}
+                  <li>
+                    <NavLink
+                      href={item.href}
+                      className="aria-[current=page]:bg-cyan-faint block w-full rounded-lg px-3 py-3 text-base"
+                      onClick={close}
+                    >
+                      {item.label}
+                    </NavLink>
+                  </li>
+                </Fragment>
+              );
+            })}
           </ul>
         </nav>
 

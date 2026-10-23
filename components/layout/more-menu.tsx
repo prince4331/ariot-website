@@ -7,6 +7,9 @@ import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils/cn';
 
 const MORE_ITEMS = [
+  { label: 'Solutions', href: '/solutions' },
+  { label: 'Workspace', href: '/workspace' },
+  { label: 'Components', href: '/components' },
   { label: 'Blog', href: '/blog' },
   { label: 'Support', href: '/support' },
 ] as const;
@@ -56,7 +59,7 @@ export function MoreMenu() {
           isActive && 'text-cyan-400',
         )}
       >
-        More
+        Explore
         <ChevronDown
           className={cn('h-4 w-4 transition-transform duration-200', open && 'rotate-180')}
         />

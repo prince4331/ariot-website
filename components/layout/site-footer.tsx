@@ -3,36 +3,25 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
 import { Separator } from '@/components/ui/separator';
-import { NewsletterForm } from '@/features/forms/newsletter-form';
 import { cn } from '@/lib/utils/cn';
 
+const PRODUCT_LINKS = [
+  { label: 'ARIOT CleanBot', href: '/robotics#cleanbot' },
+  { label: 'ARIOT Gas Detector', href: '/products/iot-home-safety-device' },
+  { label: 'Components', href: '/components' },
+] as const;
+
+const EXPLORE_LINKS = [
+  { label: 'Research & Development', href: '/research' },
+  { label: 'Solutions', href: '/solutions' },
+  { label: 'Engineering Workspace', href: '/workspace' },
+] as const;
+
 const COMPANY_LINKS = [
-  { label: 'About', href: '/about' },
+  { label: 'About ARIOT', href: '/about' },
   { label: 'Blog', href: '/blog' },
-] as const;
-
-const RD_LINKS = [
-  { label: 'Autonomous robotics', href: '/robotics' },
-  { label: 'Research & development', href: '/research' },
-] as const;
-
-const WORKSPACE_LINKS = [{ label: 'Robotics workspace', href: '/workspace' }] as const;
-
-const COMPONENTS_LINKS = [{ label: 'Components store', href: '/components' }] as const;
-
-const SOLUTIONS_LINKS = [
-  { label: 'Smart Factory', href: '/solutions/smart-factory' },
-  { label: 'Smart Agriculture', href: '/solutions/smart-agriculture' },
-  { label: 'Smart City', href: '/solutions/smart-city' },
-  { label: 'Energy & Utilities', href: '/solutions/energy-utilities' },
-  { label: 'Education', href: '/solutions/education' },
-] as const;
-
-const RESOURCES_LINKS = [
-  { label: 'Support hub', href: '/support' },
-  { label: 'Manuals', href: '/support/manuals' },
-  { label: 'Firmware', href: '/support/firmware' },
-  { label: 'Blog', href: '/blog' },
+  { label: 'Support', href: '/support' },
+  { label: 'Contact', href: '/contact' },
 ] as const;
 
 const LEGAL_LINKS = [
@@ -51,13 +40,12 @@ const footerLinkClass = cn(
 
 /**
  * SiteFooter — public-website footer.
- * Server component shell with a small client island for the newsletter form.
+ * Server-rendered footer with company information, navigation, and legal links.
  *
- * Link columns follow the approved public IA:
- *   Company · R&D · Workspace · Components · Solutions · Resources
- * Blog and Support remain reachable (Resources / More menu) without crowding
- * the primary nav. Only verified/real routes are linked — no placeholder or
- * unverified destinations.
+ * Link columns follow a concise three-group information architecture:
+ *   Products · Explore · Company
+ * Only verified/real routes are linked — no placeholder or unverified
+ * destinations.
  */
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -80,21 +68,25 @@ export function SiteFooter() {
                 className="h-9 w-auto"
               />
             </Link>
-            <p className="text-steel-300 max-w-md text-sm">
-              ARIOT Technologies researches autonomous robotics, develops connected IoT products,
-              and is building the engineering workspace and component supply that local innovators
-              need — designed for practical needs in Bangladesh.
+            <p className="font-display text-steel-100 max-w-lg text-lg leading-snug font-semibold sm:text-xl">
+              Building the Robotics Ecosystem of Bangladesh.
+            </p>
+            <p className="text-steel-300 max-w-md text-sm leading-relaxed">
+              ARIOT Technologies is developing practical products and engineering resources to help
+              ideas take shape in Bangladesh.
             </p>
           </div>
           <div className="flex flex-col gap-4 lg:items-end">
             <h3 className="text-steel-400 font-mono text-xs font-medium tracking-[0.18em] uppercase">
-              Get in touch
+              LET&apos;S CONNECT
             </h3>
-            <p className="text-steel-300 max-w-md text-sm lg:text-right">
-              Tell us what you are automating, monitoring, or prototyping — we will route you to the
-              right engineer.
+            <p className="font-display text-steel-100 max-w-md text-xl leading-snug font-semibold lg:text-right">
+              Have an idea worth building?
             </p>
-            <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
+            <p className="text-steel-300 max-w-md text-sm leading-relaxed lg:text-right">
+              Connect with ARIOT about projects, partnerships, or collaboration.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row lg:justify-end">
               <Button asChild variant="primary" size="md">
                 <Link href="/quote">Request a quote</Link>
               </Button>
@@ -106,27 +98,10 @@ export function SiteFooter() {
         </div>
 
         {/* Link columns */}
-        <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-6">
+        <div className="mt-14 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3">
+          <FooterColumn title="Products" links={PRODUCT_LINKS} />
+          <FooterColumn title="Explore" links={EXPLORE_LINKS} />
           <FooterColumn title="Company" links={COMPANY_LINKS} />
-          <FooterColumn title="R&D" links={RD_LINKS} />
-          <FooterColumn title="Workspace" links={WORKSPACE_LINKS} />
-          <FooterColumn title="Components" links={COMPONENTS_LINKS} />
-          <FooterColumn title="Solutions" links={SOLUTIONS_LINKS} />
-          <FooterColumn title="Resources" links={RESOURCES_LINKS} />
-        </div>
-
-        {/* Newsletter */}
-        <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-[1.1fr_1fr] md:items-end">
-          <div className="flex flex-col gap-2">
-            <h3 className="text-steel-400 font-mono text-xs font-medium tracking-[0.18em] uppercase">
-              Newsletter
-            </h3>
-            <p className="text-steel-300 max-w-md text-sm">
-              Quiet engineering notes from the ARIOT team — build logs, IoT field notes, and the
-              occasional product update.
-            </p>
-          </div>
-          <NewsletterForm source="footer" variant="footer" />
         </div>
 
         <Separator className="my-10" />

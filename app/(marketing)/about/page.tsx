@@ -6,7 +6,6 @@ import { CtaBand } from '@/components/marketing/cta-band';
 import { FeatureCard } from '@/components/marketing/feature-card';
 import { FeatureGrid } from '@/components/marketing/feature-grid';
 import { HeroShell } from '@/components/marketing/hero-shell';
-import { LogoStrip } from '@/components/marketing/logo-strip';
 import { SectionHeader } from '@/components/marketing/section-header';
 import { Timeline } from '@/components/marketing/timeline';
 import { Button } from '@/components/ui/button';
@@ -19,57 +18,83 @@ import { defineMetadata } from '@/lib/seo/metadata';
 
 const story = [
   {
-    label: 'Founded',
-    title: 'ARIOT Technologies established',
+    label: 'Our beginnings',
+    title: 'An ambition to build locally',
     description:
-      'A robotics and IoT engineering venture founded in Bangladesh, developing autonomous systems and connected devices for local needs.',
+      'ARIOT began with a vision to bring together engineering talent and develop practical technology in Bangladesh.',
   },
   {
-    label: 'First prototypes',
-    title: 'Autonomous robot prototyping begins',
+    label: 'First steps',
+    title: 'Turning ideas into prototypes',
     description:
-      'Engineering work on the autonomous floor-cleaning system starts — prototype development, sensor integration, and navigation research.',
+      'We started bringing hardware, embedded systems, and software together to explore solutions to real-world challenges.',
   },
   {
-    label: 'Today',
-    title: 'Active R&D, workspace & components planned',
+    label: 'Where we are',
+    title: 'Building the foundations of ARIOT',
     description:
-      'Prototype testing continues. Plans for a shared robotics workspace and an electronics components store are in development.',
+      'Product development is underway, alongside plans for an engineering workspace and access to electronic components.',
   },
   {
-    label: 'Next',
-    title: 'Strengthen our presence in Bangladesh',
+    label: 'Where we are going',
+    title: 'Growing a technology ecosystem',
     description:
-      'Pilot collaborations, local support, and additional product lines are planned as engineering milestones are reached.',
+      'Our long-term ambition is to make local innovation more accessible through useful products, engineering resources, collaboration, and support.',
   },
 ] as const;
 
 const focusAreas = [
   {
     icon: Cog,
-    title: 'Engineering ownership',
+    title: 'Practical impact',
     description:
-      'We align mechanics, electronics, firmware, cloud, and service documentation around the same product goal — no hand-offs to separate vendors.',
+      'We focus on useful solutions to real challenges and aim to make engineering relevant to everyday needs in Bangladesh.',
   },
   {
     icon: Globe,
-    title: 'Bangladesh-first design',
+    title: 'Local opportunity',
     description:
-      'Power reliability, network conditions, climate, operator behaviour, and support access are treated as design constraints from day one.',
+      'We want more people in Bangladesh to have access to the tools, knowledge, and collaboration needed to turn ideas into working technology.',
   },
   {
     icon: BadgeCheck,
-    title: 'Evidence-led claims',
+    title: 'Learning with integrity',
     description:
-      'We state what each product actually is — prototype, R&D, or in development. No commercial claims are made before a system is validated.',
+      'We test ideas, communicate development stages clearly, and improve through feedback rather than making unverified promises.',
   },
 ] as const;
 
-const partnerPlaceholders = [
-  { label: 'Certifications pending' },
-  { label: 'Institutional partners' },
-  { label: 'Industry collaborators' },
-  { label: 'Details to be announced' },
+const leadership = [
+  {
+    name: 'Md Abdullah Al Sad',
+    role: 'CEO',
+    description: 'EEE graduate, United International University',
+    image: '/media/about/md-abdullah-al-sad.webp',
+  },
+  {
+    name: 'Md Shamsuzzaman',
+    role: 'CTO',
+    description: 'EEE graduate, United International University',
+    image: '/media/about/md-shamsuzzaman-profile.webp',
+  },
+  {
+    name: 'Provat Kundu Shawon',
+    role: 'COO',
+    description: 'CSE student, United International University',
+    image: '/media/about/provat-kundu-shawon.webp',
+  },
+] as const;
+
+const aboutHeroPortraits = [
+  ...leadership.map((person) =>
+    person.name === 'Md Shamsuzzaman'
+      ? { ...person, image: '/media/about/md-shamsuzzaman-profile.webp' }
+      : person,
+  ),
+  {
+    name: 'Dr. Sadid Muneer',
+    image: '/media/about/dr-sadid-muneer-profile.webp',
+  },
 ] as const;
 
 export const metadata: Metadata = defineMetadata({
@@ -95,15 +120,17 @@ export default function AboutPage() {
           <Container className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
             <div className="flex flex-col gap-6">
               <p className="font-mono text-[12px] font-medium tracking-[0.18em] text-cyan-400 uppercase">
-                Our story
+                ABOUT ARIOT TECHNOLOGIES
               </p>
               <div>
                 <h1 className="text-steel-100 font-display text-4xl leading-[1.04] font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl">
-                  Building autonomy for the environments we know
+                  Building technology. Growing possibilities.
                 </h1>
                 <p className="text-steel-200 mt-5 max-w-2xl text-base sm:text-lg md:text-xl">
-                  We develop robotics and connected systems for Bangladesh&apos;s practical needs —
-                  hardware and software designed for local conditions, not imported assumptions.
+                  ARIOT Technologies is a Bangladesh-based engineering venture bringing people,
+                  ideas, and disciplines together. We&apos;re developing practical products and
+                  working toward an ecosystem where local innovators have better access to tools,
+                  knowledge, and support.
                 </p>
               </div>
               <Button asChild size="xl" variant="primary" className="w-fit">
@@ -114,23 +141,28 @@ export default function AboutPage() {
               </Button>
             </div>
             <Card variant="glass">
-              <CardBody className="p-4 md:p-6">
-                <div className="border-steel-700 relative aspect-[4/3] overflow-hidden rounded-lg border">
-                  <Image
-                    src="/media/about/about-hero-lab-01-4x3.svg"
-                    alt="ARIOT engineering lab — workbench with oscilloscope, tools, and PCB"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      background: 'linear-gradient(180deg, transparent 60%, var(--bg-base) 100%)',
-                    }}
-                  />
-                </div>
+              <CardBody className="p-3 sm:p-4">
+                <figure className="flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    {aboutHeroPortraits.map((person) => (
+                      <div
+                        key={person.name}
+                        className="bg-bg-raised relative aspect-square overflow-hidden rounded-xl"
+                      >
+                        <Image
+                          src={person.image}
+                          alt={`Portrait of ${person.name}`}
+                          fill
+                          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 43vw, 24vw"
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <figcaption className="text-steel-400 font-mono text-[11px] tracking-[0.16em] uppercase">
+                    The people behind ARIOT · Bangladesh
+                  </figcaption>
+                </figure>
               </CardBody>
             </Card>
           </Container>
@@ -140,8 +172,9 @@ export default function AboutPage() {
       <Section bg="raised" spacing="compact">
         <Container>
           <p className="text-steel-100 font-display mx-auto max-w-4xl text-center text-2xl leading-snug font-semibold tracking-tight md:text-4xl">
-            ARIOT exists to engineer practical robotics and connected systems that can be built,
-            serviced, and trusted in Bangladesh.
+            Our purpose is to help Bangladesh build and sustain its own technology capabilities —
+            through practical engineering, locally developed products, and opportunities for the
+            next generation of innovators.
           </p>
         </Container>
       </Section>
@@ -149,9 +182,9 @@ export default function AboutPage() {
       <Section bg="base" spacing="default">
         <Container className="grid grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1fr] lg:items-start">
           <SectionHeader
-            eyebrow="Story"
-            title="Milestones, not mythology"
-            subhead="We tell the story as it actually is — no fabricated deployment history, no unverified dates."
+            eyebrow="Our journey"
+            title="Every great idea starts somewhere."
+            subhead="From an engineering ambition to building practical technology in Bangladesh — our journey is just beginning."
             size="compact"
           />
           <Timeline items={story} />
@@ -161,9 +194,9 @@ export default function AboutPage() {
       <Section bg="raised" spacing="default">
         <Container className="flex flex-col gap-12">
           <SectionHeader
-            eyebrow="Engineering focus"
-            title="What makes ARIOT credible"
-            subhead="Capability claims stay concrete and evidence-led."
+            eyebrow="Our values"
+            title="What guides ARIOT."
+            subhead="Practical impact, local opportunity, and a commitment to learning responsibly."
           />
           <FeatureGrid columns={3}>
             {focusAreas.map((area) => (
@@ -176,46 +209,76 @@ export default function AboutPage() {
       <Section bg="base" spacing="default">
         <Container className="flex flex-col gap-12">
           <SectionHeader
-            eyebrow="Team"
-            title="People behind the systems"
-            subhead="Team profiles, bios, and photographs will be published once reviewed and approved by the founders."
+            eyebrow="Our team"
+            title="The people building ARIOT."
+            subhead="Meet the team bringing robotics, electronics, software, and operations together."
           />
-          <p className="text-steel-300 max-w-2xl text-base">
-            ARIOT Technologies is an engineering-led company based in Bangladesh. Team details will
-            be listed here once they are ready for publication.
-          </p>
-        </Container>
-      </Section>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <article className="group border-steel-800 bg-bg-raised ease-out-quart hover:shadow-2 flex w-full flex-col overflow-hidden rounded-2xl border transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none sm:col-span-2 sm:mx-auto sm:max-w-[390px] lg:col-span-1 lg:col-start-2 lg:max-w-none">
+              <div className="relative aspect-square w-full overflow-hidden">
+                <Image
+                  src="/media/about/dr-sadid-muneer-profile.webp"
+                  alt="Portrait of Dr. Sadid Muneer"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 390px, 33vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex flex-col gap-1 p-5">
+                <p className="font-mono text-[11px] font-medium tracking-[0.18em] text-cyan-400 uppercase">
+                  Advisor
+                </p>
+                <h3 className="font-display text-steel-100 text-lg font-semibold">
+                  <Link
+                    href="https://eee.uiu.ac.bd/faculty/muneer-sadid/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-visible:ring-offset-bg-base ease-out-quart rounded-sm transition-colors duration-200 hover:text-cyan-300 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:outline-none"
+                  >
+                    Dr. Sadid Muneer
+                  </Link>
+                </h3>
+                <p className="text-steel-300 text-sm">
+                  Professor &amp; Undergraduate Program Coordinator, EEE, United International
+                  University
+                </p>
+              </div>
+            </article>
+          </div>
 
-      <Section bg="raised" spacing="compact">
-        <Container>
-          <LogoStrip eyebrow="Certifications & partners" items={partnerPlaceholders} />
-        </Container>
-      </Section>
-
-      <Section bg="base" spacing="default">
-        <Container>
-          <Card variant="glass">
-            <CardBody className="flex flex-col gap-4 p-6 md:p-8">
-              <p className="font-mono text-[11px] tracking-[0.18em] text-cyan-400 uppercase">
-                Press & news
-              </p>
-              <h2 className="text-steel-100 font-display text-3xl font-semibold tracking-tight">
-                News and press mentions
-              </h2>
-              <p className="text-steel-300 max-w-2xl text-base">
-                Press links, institution announcements, and founder updates will appear here as they
-                are published and verified.
-              </p>
-            </CardBody>
-          </Card>
+          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {leadership.map((person) => (
+              <li key={person.name}>
+                <article className="group border-steel-800 bg-bg-raised ease-out-quart hover:shadow-2 flex h-full flex-col overflow-hidden rounded-2xl border transition-[transform,box-shadow] duration-300 hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:transition-none">
+                  <div className="relative aspect-square w-full overflow-hidden">
+                    <Image
+                      src={person.image}
+                      alt={`Portrait of ${person.name}`}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 p-5">
+                    <p className="font-mono text-[11px] font-medium tracking-[0.18em] text-cyan-400 uppercase">
+                      {person.role}
+                    </p>
+                    <h3 className="font-display text-steel-100 text-lg font-semibold">
+                      {person.name}
+                    </h3>
+                    <p className="text-steel-300 text-sm">{person.description}</p>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
         </Container>
       </Section>
 
       <CtaBand
-        eyebrow="Get in touch"
-        title="Build with a team that owns the whole system"
-        subtitle="Tell us what you are trying to automate, monitor, or prototype — and we will help scope the right approach."
+        eyebrow="Connect with ARIOT"
+        title="Be part of what comes next."
+        subtitle="Interested in collaborating, sharing an idea, or learning more about ARIOT? We'd love to hear from you."
         primary={{ label: 'Contact ARIOT', href: '/contact' }}
         secondary={{ label: 'Request a quote', href: '/quote' }}
       />

@@ -7,19 +7,21 @@ import { MobileDrawer } from './mobile-drawer';
 import { MoreMenu } from './more-menu';
 
 const NAV_ITEMS = [
-  { label: 'Home', href: '/' },
-  { label: 'R&D', href: '/research' },
   { label: 'Robotics', href: '/robotics' },
-  { label: 'Workspace', href: '/workspace' },
-  { label: 'Components', href: '/components' },
-  { label: 'Solutions', href: '/solutions' },
+  { label: 'IoT', href: '/products/iot-home-safety-device' },
+  { label: 'R&D', href: '/research' },
   { label: 'About', href: '/about' },
 ] as const;
 
-// Mobile drawer includes the secondary routes (Blog, Support) too, since
-// there is room to scroll and they must remain reachable on small screens.
+// Mobile drawer includes the secondary routes (Solutions, Workspace,
+// Components, Blog, Support) too, since there is room to scroll and they
+// must remain reachable on small screens.
 const MOBILE_NAV_ITEMS = [
+  { label: 'Home', href: '/' },
   ...NAV_ITEMS,
+  { label: 'Solutions', href: '/solutions' },
+  { label: 'Workspace', href: '/workspace' },
+  { label: 'Components', href: '/components' },
   { label: 'Blog', href: '/blog' },
   { label: 'Support', href: '/support' },
 ] as const;
@@ -71,9 +73,6 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Button asChild size="sm" variant="ghost">
-            <Link href="/contact">Contact</Link>
-          </Button>
           <Button asChild size="sm" variant="primary">
             <Link href="/quote">Request a quote</Link>
           </Button>
